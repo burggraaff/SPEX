@@ -4,14 +4,14 @@ from numpy import sin, cos
 def DoP(I, Q, U, V):
     return np.sqrt(Q**2 + U**2 + V**2) / I
 
-def DoLP(I, Q, U):
+def DoLP(I, Q, U, V):
     return DoP(I, Q, U, V=0.)
 
-def AoLP(Q, U):
+def AoLP(I, Q, U, V):
     return 0.5 * np.arctan(U/Q)
 
-def AoLP_deg(Q, U):
-    return np.rad2deg(AoLP(Q, U))
+def AoLP_deg(I, Q, U, V):
+    return np.rad2deg(AoLP(I, Q, U, V))
 
 def Stokes(I=0., Q=0., U=0., V=0.):
     assert Q**2 + U**2 + V**2 <= I**2
