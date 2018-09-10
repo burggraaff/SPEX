@@ -32,7 +32,7 @@ def retrieve_DoLP(wavelengths, source, I, delta=4480):
     DoLP, AoLP = popt
     return DoLP, AoLP
 
-def retrieve_DoLP_many(wavelengths, source, I, **kwargs):
+def retrieve_DoLP_many(wavelengths, source, Is, **kwargs):
     DoLPs, AoLPs = np.array([retrieve_DoLP(wavelengths, source, I, **kwargs) for I in Is]).T
     return DoLPs, AoLPs
 
@@ -54,24 +54,24 @@ def plot(x, DoLPs, AoLPs, xlabel):
 
 I, Q, U, V = simulate_iSPEX(wavelengths, source)
 print("Simulated ideal conditions")
-
-QWP_ds = np.arange(-20, 20.5, 0.5)
+.5
+QWP_ds = np.linspace(-20, 20, 100)
 Is = simulate_iSPEX_error(wavelengths, source, "QWP_d", QWP_ds)
 print("Simulated QWP \u0394d")
 DoLPs, AoLPs = retrieve_DoLP_many(wavelengths, source, Is)
 fig = plot(QWP_ds, DoLPs, AoLPs, r"$\Delta d$ on QWP (nm)")
 plt.show()
 
-QWP_ts = np.arange(-25, 25, 0.5)
+QWP_ts = np.linspace(-25, 25, 100)
 Is = simulate_iSPEX_error(wavelengths, source, "QWP_t", QWP_ts)
 print("Simulated QWP \u0394\u03B1")
 DoLPs, AoLPs = retrieve_DoLP_many(wavelengths, source, Is)
 fig = plot(QWP_ts, DoLPs, AoLPs, r"$\Delta \alpha$ on QWP (degrees)")
 plt.show()
 
-QWP_ts = np.arange(-25, 25, 0.5)
-Is = simulate_iSPEX_error(wavelengths, source, "QWP_t", QWP_ts)
-print("Simulated QWP \u0394\u03B1")
+MOR1_ds = np.linspace(-100, 100, 100)
+Is = simulate_iSPEX_error(wavelengths, source, "MOR1_d", MOR1_ds)
+print("Simulated MOR 1 \u0394d")
 DoLPs, AoLPs = retrieve_DoLP_many(wavelengths, source, Is)
-fig = plot(QWP_ts, DoLPs, AoLPs, r"$\Delta \alpha$ on QWP (degrees)")
+fig = plot(MOR1_ds, DoLPs, AoLPs, r"$\Delta d$ on MOR 1 (nm)")
 plt.show()
