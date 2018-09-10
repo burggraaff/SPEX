@@ -19,23 +19,16 @@ def simulate_iSPEX(wavelengths, source, QWP_d=140., QWP_t=0., QWP_a=False, MOR1_
 
     return after_POL.T  # transpose to split I, Q, U, V if wanted
 
-I, Q, U, V = simulate_iSPEX(wavelengths, source)
-I2,Q2,U2,V2= simulate_iSPEX(wavelengths, source, POL_t=25)
-
-fig, ax = plt.subplots(figsize=(10,5), tight_layout=True)
-ax.plot(wavelengths, I , c='k')
-ax.plot(wavelengths, I2, c='k', ls='--')
-ax.set_xlim(300, 800)
-ax.set_ylim(0, 1)
-ax.set_xlabel("$\lambda$ (nm)")
-ax.set_ylabel("Stokes $I$")
-plt.show()
-
 def retrieve_DoLP(wavelengths, source, I, delta=4480):
     mod_source = lambda wvl, DoLP, AoLP: pol.modulation(wvl, source[:,0], DoLP, AoLP, delta)
     popt, pcov = curve_fit(mod_source, wavelengths, I, bounds=([0, 0], [1, 180]), p0=[0.5,90])
     DoLP, AoLP = popt
     return DoLP, AoLP
 
-DoLP, AoLP = retrieve_DoLP(wavelengths, source, I)
-print(f"Optimal: DoLP = {DoLP:.2f}, AoLP = {AoLP:.1f} degrees")
+I, Q, U, V = simulate_iSPEX(wavelengths, source)
+
+QWP_ds = np.arange(-20, 20, 0.5)
+Is = np.array([simulate_iSPEX(wavelengths, source, QWP_d=140.+Q_diff)[0] for Q_diff in QWP_ds])
+DoLPs = np.array([])
+
+raise Exception
