@@ -67,7 +67,12 @@ def Retarder_wavelengths(d_nm, t, wavelengths):
     stack = np.stack([Retarder_frac_deg(d, t) for d in d_frac])
     return stack
 
-# TODO: Retarder as function of wavelength (retardance of fixed length)
-
 def Filter(attenuation):
     return attenuation * np.eye(4)
+
+def modulation(wavelengths, source, DoLP, AoLP, delta):
+    AoLP_rad = np.deg2rad(AoLP)
+    in_cos = 2 * np.pi * delta / wavelengths + 2 * AoLP_rad
+    in_brackets = 1 + DoLP * np.cos(in_cos)
+    total = 0.5 * source * in_brackets
+    return total
