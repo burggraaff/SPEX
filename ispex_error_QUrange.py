@@ -1,5 +1,7 @@
 import pol
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import spex
 
@@ -7,7 +9,7 @@ wavelengths = np.arange(450, 700, 0.3)
 D = "\u0394"
 a = "\u03B1"
 
-steps = 25
+steps = 30
 
 QWP_d  = np.tile(np.nan, (steps, steps))
 QWP_t  = QWP_d.copy()
@@ -37,7 +39,7 @@ def margin(x, DoLPs, AoLPs, real_DoLP, real_AoLP, Dlim=0.03, Alim=5):
 
 def plot(data, label=None, **kwargs):
     plt.figure(figsize=(6,5))
-    plt.imshow(data, origin="lower", extent=(0,1,0,1), **kwargs)
+    plt.imshow(data, origin="lower", extent=(-1,1,-1,1), **kwargs)
     plt.xlabel("$U/I$")
     plt.ylabel("$Q/I$")
     plt.title(f"{label}: minimum {np.nanmin(data):.1f}")
@@ -45,13 +47,13 @@ def plot(data, label=None, **kwargs):
     plt.tight_layout()
     if label:
         plt.savefig(f"margins_{label}.png")
-    plt.show()
+    plt.close()
 
-for i,Q in enumerate(np.linspace(0, 1, steps)):
-    for j,U in enumerate(np.linspace(0, 1, steps)):
+for i,Q in enumerate(np.linspace(-1, 1, steps)):
+    for j,U in enumerate(np.linspace(-1, 1, steps)):
         if not 0 < Q**2 + U**2 <= 1:
             continue
-        print(f"Q = {Q:.1f}, U = {U:.1f}")
+        print(f"Q = {Q:.2f}, U = {U:.2f}")
         source = pol.Stokes_nm(np.ones_like(wavelengths), Q, U, 0.)
 
         I, *_ = spex.simulate_iSPEX(wavelengths, source)
