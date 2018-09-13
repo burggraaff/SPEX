@@ -9,13 +9,20 @@ wavelengths = np.arange(450, 700, 0.3)
 D = "\u0394"
 a = "\u03B1"
 
-steps = 27
+steps = 31
 
 QWP_d  = np.tile(np.nan, (steps, steps))
 QWP_t  = QWP_d.copy()
 MOR1_d = QWP_d.copy()
 MOR1_t = QWP_d.copy()
 POL_t  = QWP_d.copy()
+
+Qrange = np.linspace(-1, 1, steps)
+Urange = Qrange.copy()
+
+Usq, Qsq = np.meshgrid(Urange, Qrange)
+Dsq = pol.DoLP(1, Qsq, Usq, 0)
+Asq = pol.AoLP(1, Qsq, Usq, 0)
 
 def margin(x, DoLPs, AoLPs, real_DoLP, real_AoLP, Dlim=0.03, Alim=5):
     D_err = np.abs(DoLPs / real_DoLP - 1)
@@ -49,9 +56,25 @@ def plot(data, label=None, **kwargs):
         plt.savefig(f"margins_{label}.png")
     plt.close()
 
-for i,Q in enumerate(np.linspace(-1, 1, steps)):
-    for j,U in enumerate(np.linspace(-1, 1, steps)):
+def plot_DA(D, A, data, label=None, **kwargs):
+    plt.figure(figsize=(6,5))
+    plt.contourf(D, A, data)
+    plt.xlabel("DoLP")
+    plt.ylabel("AoLP (degrees)")
+    plt.xlim(0, 1)
+    plt.ylim(-90, 90)
+    plt.title(f"{label}: minimum {np.nanmin(data):.1f}")
+    plt.colorbar(aspect=10)
+    plt.tight_layout()
+    if label:
+        plt.savefig(f"margins_AD_{label}.png")
+    plt.close()
+
+for i,Q in enumerate(Qrange):
+    for j,U in enumerate(Urange):
+        print(f"{i}, {j}", end="     ")
         if not 0 < Q**2 + U**2 <= 1:
+            print("")
             continue
         print(f"Q = {Q:.2f}, U = {U:.2f}")
         source = pol.Stokes_nm(np.ones_like(wavelengths), Q, U, 0.)
@@ -89,4 +112,5 @@ for i,Q in enumerate(np.linspace(-1, 1, steps)):
 
 for arr, label in zip([QWP_d, QWP_t, MOR1_d, MOR1_t, POL_t], ["QWP_d", "QWP_t", "MOR1_d", "MOR1_t", "POL_t"]):
     plot(arr, label)
+    plot_DA(Dsq, Asq, arr, label)
     np.save(f"margins_{label}.npy", arr)
