@@ -41,7 +41,7 @@ def plot(data, label=None, **kwargs):
     plt.xlabel("$U/I$")
     plt.ylabel("$Q/I$")
     plt.title(f"{label}: minimum {np.nanmin(data):.1f}")
-    plt.colorbar()
+    plt.colorbar(aspect=10)
     plt.tight_layout()
     if label:
         plt.savefig(f"margins_{label}.png")
@@ -65,7 +65,7 @@ for i,Q in enumerate(np.linspace(0, 1, steps)):
         DoLPs, AoLPs = spex.retrieve_DoLP_many(wavelengths, source, Is)
         QWP_d[i,j] = margin(QWP_ds, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
-        QWP_ts = np.linspace(-13, 13, 100)
+        QWP_ts = np.linspace(-12, 12, 100)
         Is = spex.simulate_iSPEX_error(wavelengths, source, "QWP_t", QWP_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many(wavelengths, source, Is)
         QWP_t[i,j] = margin(QWP_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
@@ -75,12 +75,12 @@ for i,Q in enumerate(np.linspace(0, 1, steps)):
         DoLPs, AoLPs = spex.retrieve_DoLP_many(wavelengths, source, Is)
         MOR1_d[i,j] = margin(MOR1_ds, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
-        MOR1_ts = np.linspace(-10, 10, 100)
+        MOR1_ts = np.linspace(-9, 9, 100)
         Is = spex.simulate_iSPEX_error(wavelengths, source, "MOR1_t", MOR1_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many(wavelengths, source, Is)
         MOR1_t[i,j] = margin(MOR1_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
-        POL_ts = np.linspace(-10, 10, 100)
+        POL_ts = np.linspace(-9, 9, 100)
         Is = spex.simulate_iSPEX_error(wavelengths, source, "POL_t", POL_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many(wavelengths, source, Is)
         POL_t[i,j] = margin(POL_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
