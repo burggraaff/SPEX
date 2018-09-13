@@ -72,7 +72,8 @@ def plot_DA(D, A, data, label=None, **kwargs):
 
 for i,Q in enumerate(Qrange):
     for j,U in enumerate(Urange):
-        print(f"{i}, {j}", end="     ")
+        perc = 100 * (steps * i + j) / steps**2
+        print(f"{perc:.1f}", end="     ")
         if not 0 < Q**2 + U**2 <= 1:
             print("")
             continue
