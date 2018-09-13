@@ -8,7 +8,7 @@ def DoLP(I, Q, U, V):
     return DoP(I, Q, U, V=0.)
 
 def AoLP(I, Q, U, V):
-    return 0.5 * np.arctan(U/Q)
+    return 0.5 * np.arctan2(U, Q)
 
 def AoLP_deg(I, Q, U, V):
     return np.rad2deg(AoLP(I, Q, U, V))
