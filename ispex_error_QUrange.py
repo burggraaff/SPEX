@@ -9,7 +9,7 @@ wavelengths = np.arange(450, 700, 0.3)
 D = "\u0394"
 a = "\u03B1"
 
-steps = 30
+steps = 27
 
 QWP_d  = np.tile(np.nan, (steps, steps))
 QWP_t  = QWP_d.copy()
