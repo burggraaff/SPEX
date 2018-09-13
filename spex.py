@@ -24,8 +24,11 @@ def simulate_iSPEX_error(wavelengths, source, parameter, prange):
 
 def retrieve_DoLP(wavelengths, source, I, delta=4480):
     mod_source = lambda wvl, DoLP, AoLP: pol.modulation(wvl, source[:,0], DoLP, AoLP, delta)
-    popt, pcov = curve_fit(mod_source, wavelengths, I, bounds=([0, -90], [1, 90]), p0=[0.5,0])
+    dolp_init = I.max() - I.min()
+    popt, pcov = curve_fit(mod_source, wavelengths, I, bounds=([0, -90], [1, 90]), p0=[dolp_init,0])
     DoLP, AoLP = popt
+    if AoLP <= -90:
+        AoLP += 180
     return DoLP, AoLP
 
 def retrieve_DoLP_many(wavelengths, source, Is, **kwargs):
