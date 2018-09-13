@@ -27,7 +27,7 @@ def retrieve_DoLP(wavelengths, source, I, delta=4480):
     dolp_init = I.max() - I.min()
     popt, pcov = curve_fit(mod_source, wavelengths, I, bounds=([0, -90], [1, 90]), p0=[dolp_init,0])
     DoLP, AoLP = popt
-    if AoLP <= -90:
+    if AoLP <= -89.9:
         AoLP += 180
     return DoLP, AoLP
 
