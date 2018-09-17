@@ -99,31 +99,31 @@ for i,Q in enumerate(Qrange):
         print(f"Optimal: DoLP = {DoLP:.2f}, AoLP = {AoLP:.1f} degrees")
 
         QWP_ds = np.linspace(-15, 15, 100)
-        I0, I90 = spex.simulate_iSPEX2(wavelengths, source, "QWP_d", QWP_ds)
+        I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "QWP_d", QWP_ds)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         QWP_d[i,j] = margin(QWP_ds, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
         QWP_ts = np.linspace(-12, 12, 100)
-        I0, I90 = spex.simulate_iSPEX2(wavelengths, source, "QWP_t", QWP_ts)
+        I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "QWP_t", QWP_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         QWP_t[i,j] = margin(QWP_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
         MOR1_ds = np.linspace(-30, 30, 100)
-        I0, I90 = spex.simulate_iSPEX2(wavelengths, source, "MOR1_d", MOR1_ds)
+        I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "MOR1_d", MOR1_ds)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         MOR1_d[i,j] = margin(MOR1_ds, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
         MOR1_ts = np.linspace(-9, 9, 100)
-        I0, I90 = spex.simulate_iSPEX2(wavelengths, source, "MOR1_t", MOR1_ts)
+        I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "MOR1_t", MOR1_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         MOR1_t[i,j] = margin(MOR1_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
         POL_ts = np.linspace(-9, 9, 100)
-        I0, I90 = spex.simulate_iSPEX2(wavelengths, source, "POL0_t" , POL_ts)
+        I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "POL0_t" , POL_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         POL0_t [i,j] = margin(POL_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
-        I0, I90 = spex.simulate_iSPEX2(wavelengths, source, "POL90_t", POL_ts)
+        I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "POL90_t", POL_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         POL90_t[i,j] = margin(POL_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
 
