@@ -22,7 +22,7 @@ Urange = Qrange.copy()
 
 Usq, Qsq = np.meshgrid(Urange, Qrange)
 Dsq = pol.DoLP(1, Qsq, Usq, 0)
-Asq = pol.AoLP(1, Qsq, Usq, 0)
+Asq = pol.AoLP_deg(1, Qsq, Usq, 0)
 
 def margin(x, DoLPs, AoLPs, real_DoLP, real_AoLP, Dlim=0.03, Alim=5):
     D_err = np.abs(DoLPs / real_DoLP - 1)

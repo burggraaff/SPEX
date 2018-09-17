@@ -23,7 +23,7 @@ Urange = Qrange.copy()
 
 Usq, Qsq = np.meshgrid(Urange, Qrange)
 Dsq = pol.DoLP(1, Qsq, Usq, 0)
-Asq = pol.AoLP(1, Qsq, Usq, 0)
+Asq = pol.AoLP_deg(1, Qsq, Usq, 0)
 
 def _D_err(D, D_real):
     return D/D_real - 1
