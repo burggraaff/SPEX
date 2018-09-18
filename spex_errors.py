@@ -4,7 +4,10 @@ def D_err(D, D_real):
     return D/D_real - 1
 
 def A_err(A, A_real):
-    diff = np.abs(A - A_real)
+    diff1 = np.abs(A - A_real)
+    diff2 = np.abs(A - A_real + 180)
+    diff3 = np.abs(A - A_real - 180)
+    diff = np.stack((diff1, diff2, diff3)).min(axis=0)
     return diff
 
 def margin(x, DoLPs, AoLPs, real_DoLP, real_AoLP, Dlim=0.03, Alim=5):
