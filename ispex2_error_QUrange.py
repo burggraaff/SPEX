@@ -5,6 +5,7 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import spex
 import spex_errors as spex_E
+from sys import stdout
 
 wavelengths = np.arange(450, 700, 0.3)
 D = "\u0394"
@@ -55,51 +56,51 @@ def plot_DA(D, A, data, label=None, **kwargs):
 for i,Q in enumerate(Qrange):
     for j,U in enumerate(Urange):
         perc = 100 * (steps * i + j) / steps**2
-        print(f"{perc:.1f}", end="     ")
+        print(f"{perc:.1f}", end="     ") ; stdout.flush()
         if not 0 < Q**2 + U**2 <= 1:
             print("")
             continue
-        print(f"Q = {Q:.2f}, U = {U:.2f}", end=" ")
+        print(f"Q = {Q:.2f}, U = {U:.2f}", end=" ") ; stdout.flush()
         source = pol.Stokes_nm(np.ones_like(wavelengths), Q, U, 0.)
 
         I0, I90 = spex.simulate_iSPEX2(wavelengths, source)
         DoLP_real = pol.DoLP(*source[0]) ; AoLP_real = pol.AoLP_deg(*source[0])
-        print(f"(D={DoLP_real:.1f}, A={AoLP_real:.0f})", end=" ")
+        print(f"(D={DoLP_real:.1f}, A={AoLP_real:.0f})", end=" ") ; stdout.flush()
 
         QWP_ds = np.linspace(-15, 15, 100)
         I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "QWP_d", QWP_ds)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         QWP_d[i,j] = spex_E.margin(QWP_ds, DoLPs, AoLPs, DoLP_real, AoLP_real)
-        print(f"(QWP_d: {QWP_d[i,j]:.0f})", end=" ")
+        print(f"(QWP_d: {QWP_d[i,j]:.0f})", end=" ") ; stdout.flush()
 
         QWP_ts = np.linspace(-12, 12, 100)
         I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "QWP_t", QWP_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         QWP_t[i,j] = spex_E.margin(QWP_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
-        print(f"(QWP_t: {QWP_t[i,j]:.0f})", end=" ")
+        print(f"(QWP_t: {QWP_t[i,j]:.0f})", end=" ") ; stdout.flush()
 
         MOR1_ds = np.linspace(-30, 30, 100)
         I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "MOR1_d", MOR1_ds)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         MOR1_d[i,j] = spex_E.margin(MOR1_ds, DoLPs, AoLPs, DoLP_real, AoLP_real)
-        print(f"(MOR1_d: {MOR1_d[i,j]:.0f})", end=" ")
+        print(f"(MOR1_d: {MOR1_d[i,j]:.0f})", end=" ") ; stdout.flush()
 
         MOR1_ts = np.linspace(-9, 9, 100)
         I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "MOR1_t", MOR1_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         MOR1_t[i,j] = spex_E.margin(MOR1_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
-        print(f"(MOR1_t: {MOR1_t[i,j]:.0f})", end=" ")
+        print(f"(MOR1_t: {MOR1_t[i,j]:.0f})", end=" ") ; stdout.flush()
 
         POL_ts = np.linspace(-9, 9, 100)
         I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "POL0_t" , POL_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         POL0_t [i,j] = spex_E.margin(POL_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
-        print(f"(POL0_t: {POL0_t[i,j]:.0f})", end=" ")
+        print(f"(POL0_t: {POL0_t[i,j]:.0f})", end=" ") ; stdout.flush()
 
         I0, I90 = spex.simulate_iSPEX2_error(wavelengths, source, "POL90_t", POL_ts)
         DoLPs, AoLPs = spex.retrieve_DoLP_many2(wavelengths, source, I0, I90)
         POL90_t[i,j] = spex_E.margin(POL_ts, DoLPs, AoLPs, DoLP_real, AoLP_real)
-        print(f"(POL90_t: {POL90_t[i,j]:.0f})", end=" ")
+        print(f"(POL90_t: {POL90_t[i,j]:.0f})", end=" ") ; stdout.flush()
 
         print("")
 
