@@ -2,6 +2,7 @@ import pol
 import numpy as np
 from matplotlib import pyplot as plt
 import spex
+import spex_errors as spex_E
 from sys import argv
 
 Q_in = float(argv[1])
@@ -53,22 +54,11 @@ def _ticks2(ax, ax2):
     ax.yaxis.grid(True, which="major")
     ax.xaxis.grid(True)
 
-def _D_err(D, D_real):
-    return D/D_real - 1
-
-def _A_err(A, A_real):
-    diff = A - A_real
-    if A_real >= 0:
-        diff[A < 0] = A[A < 0] + 180 - A_real
-    else:
-        diff[A > 0] = A[A > 0] - 180 - A_real
-    return diff
-
-def plot_errors(x, DoLPs, AoLPs, real_DoLP, real_AoLP, xlabel, Dlim=0.03, title="Solid: DoLP ; Dashed: AoLP"):
+def plot_errors(x, DoLPs, AoLPs, real_DoLP, real_AoLP, xlabel, Dlim=0.03):
     fig, ax = plt.subplots(figsize=(6,4), tight_layout=True)
     ax2 = ax.twinx()
-    Derr = _D_err(DoLPs, real_DoLP)
-    Aerr = _A_err(AoLPs, real_AoLP)
+    Derr = spex_E.D_err(DoLPs, real_DoLP)
+    Aerr = spex_E.A_err(AoLPs, real_AoLP)
     ax.plot(x, Derr, c='k')
     ax.axhspan(-Dlim, Dlim, color='0.5', alpha=0.5)
     ax2.plot(x, Aerr, c='k', ls="--")
@@ -77,28 +67,9 @@ def plot_errors(x, DoLPs, AoLPs, real_DoLP, real_AoLP, xlabel, Dlim=0.03, title=
     ax.set_xlabel(xlabel)
     ax.set_ylabel("DoLP Error (%)")
     ax2.set_ylabel("AoLP Error (degrees)")
+    title = f"Margin: {spex_E.margin(x, DoLPs, AoLPs, real_DoLP, real_AoLP):.1f}"
     ax.set_title(title)
     return fig
-
-def margin(x, DoLPs, AoLPs, real_DoLP, real_AoLP, Dlim=0.03, Alim=5):
-    D_err = _D_err(DoLPs, real_DoLP)
-    A_err = _A_err(AoLPs, real_AoLP)
-
-    D_ind = np.where(D_err > Dlim)
-    A_ind = np.where(A_err > Alim)
-
-    try:
-        D_min = np.abs(x[D_ind]).min()
-    except ValueError:
-        D_min = np.abs(x).max()
-    try:
-        A_min = np.abs(x[A_ind]).min()
-    except ValueError:
-        A_min = np.abs(x).max()
-
-    x_min = np.min([D_min, A_min])
-
-    return x_min
 
 I0, I90 = spex.simulate_iSPEX2(wavelengths, source)
 DoLP_real = pol.DoLP(*source[0]) ; AoLP_real = pol.AoLP_deg(*source[0])
