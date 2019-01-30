@@ -28,39 +28,50 @@ def Stokes_nm(I=0., Q=0., U=0., V=0.):
     arr[:,3] = V
     return arr
 
-def Rotation(t):
-    return np.array([[1.,        0.,        0., 0.],
-                     [0.,  cos(2*t), -sin(2*t), 0.],
-                     [0.,  sin(2*t),  cos(2*t), 0.],
-                     [0.,        0.,        0., 1.]])
+def Rotation_matrix_radians(phi):
+    return np.array([[1.,          0.,          0., 0.],
+                     [0.,  cos(2*phi),  sin(2*phi), 0.],
+                     [0., -sin(2*phi),  cos(2*phi), 0.],
+                     [0.,          0.,          0., 1.]])
 
-def Rotation_deg(t):
-    t_rad = np.deg2rad(t)
-    return Rotation(t_rad)
+def rotate_element_radians(element, phi):
+    return Rotation_matrix_radians(-phi) @ element @ Rotation_matrix_radians(phi)
 
-LinPol0 = 0.5 * np.array([[1, 1, 0, 0],
-                          [1, 1, 0, 0],
-                          [0, 0, 0, 0],
-                          [0, 0, 0, 0]])
+def Rotation_matrix_degrees(phi_degrees):
+    phi_radians = np.deg2rad(phi_degrees)
+    return Rotation_matrix_radians(phi_radians)
 
-def LinPol(angle):
-    return Rotation(angle) @ LinPol0 @ Rotation(-angle)
+def rotate_element_degrees(element, phi_degrees):
+    phi = np.deg2rad(phi_degrees)
+    return rotate_element_radians(element, phi)
 
-def LinPol_deg(angle):
-    angle_rad = np.deg2rad(angle)
-    return LinPol(angle_rad)
+Linear_polarizer_0 = 0.5 * np.array([[1, 1, 0, 0],
+                                     [1, 1, 0, 0],
+                                     [0, 0, 0, 0],
+                                     [0, 0, 0, 0]])
 
-def Retarder(d, t):
-    ret = np.array([[1, 0, 0, 0],
-                    [0, 1, 0, 0],
-                    [0, 0, cos(d), sin(d)],
-                    [0, 0, -sin(d), cos(d)]])
-    return Rotation(t) @ ret @ Rotation(-t)
+def Linear_polarizer_radians(phi):
+    return rotate_element_radians(Linear_polarizer_0, phi)
+
+def Linear_polarizer_degrees(phi_degrees):
+    phi = np.deg2rad(phi_degrees)
+    return Linear_polarizer_radians(phi)
+
+def Retarder_radians(delta, phi):
+    retarder = np.array([[1, 0,          0,           0],
+                         [0, 1,          0,           0],
+                         [0, 0, cos(delta), -sin(delta)],
+                         [0, 0, sin(delta),  cos(delta)]])
+    return rotate_element_radians(retarder, phi)
+
+def Retarder_degrees(delta, phi_degrees):
+    phi = np.deg2rad(phi_degrees)
+    return Retarder_radians(delta, phi)
 
 def Retarder_frac_deg(d, t):
     d_rad = d * 2 * np.pi
     t_rad = np.deg2rad(t)
-    return Retarder(d_rad, t_rad)
+    return Retarder_radians(d_rad, t_rad)
 
 def Retarder_wavelengths(d_nm, t, wavelengths):
     d_frac = d_nm / wavelengths
