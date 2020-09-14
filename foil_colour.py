@@ -24,5 +24,7 @@ after_foil = np.einsum("wij,wj->wi", foil, after_polariser_0)
 after_polariser_90 = np.einsum("ij,wj->wi", polariser_90, after_foil)
 
 plt.plot(wavelengths, after_polariser_90[:,0])
+plt.xlabel("Wavelength [nm]")
+plt.ylabel("Intensity [a.u.]")
 plt.show()
 plt.close()
