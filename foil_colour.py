@@ -2,9 +2,15 @@ import numpy as np
 from matplotlib import pyplot as plt
 from spex import stokes, elements
 
+# Load the input spectrum
+input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)
+input_spectrum = input_spectrum[input_spectrum[:,0] >= 300]
+# input_spectrum = input_spectrum[input_spectrum[:,0] <= 720]
+
 # Create the source spectrum, fully unpolarised
-wavelengths = np.arange(380, 720, 0.3)
-source = stokes.Stokes_nm(np.ones_like(wavelengths), 0, 0, 0)
+wavelengths = input_spectrum[:,0]
+source_intensity = input_spectrum[:,1] / np.nanmax(input_spectrum[:,1])
+source = stokes.Stokes_nm(source_intensity, 0, 0, 0)
 
 # Create the input and output polarisers at 0 and 90 degrees, respectively
 polariser_0 = elements.Linear_polarizer_0
