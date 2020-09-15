@@ -13,8 +13,8 @@ source_intensity = input_spectrum[:,1] / np.nanmax(input_spectrum[:,1])
 source = stokes.Stokes_nm(source_intensity, 0, 0, 0)
 
 # Create the input and output polarisers at 0 and 90 degrees, respectively
-polariser_0 = elements.Linear_polarizer_0
-polariser_90 = elements.Linear_polarizer_degrees(90)
+polariser_0 = elements.Linear_polarizer_general(0.9, 0.005, 0)
+polariser_90 = elements.Linear_polarizer_general(0.9, 0.005, 90)
 
 # Propagate the source light through the input polariser
 after_polariser_0 = np.einsum("ij,wj->wi", polariser_0, source)

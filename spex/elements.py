@@ -30,6 +30,16 @@ def Linear_polarizer_degrees(phi_degrees):
     phi = np.deg2rad(phi_degrees)
     return Linear_polarizer_radians(phi)
 
+def Linear_polarizer_general(kx, ky, phi_degrees=0):
+    px = np.sqrt(kx)
+    py = np.sqrt(ky)
+    polarizer_0 = 0.5 * np.array([[px**2 + py**2, px**2 - py**2,       0, 0      ],
+                                  [px**2 - py**2, px**2 + py**2,       0, 0      ],
+                                  [0            , 0            , 2*px*py, 0      ],
+                                  [0            , 0            , 0      , 2*px*py]])
+    polarizer = rotate_element_degrees(polarizer_0, phi_degrees)
+    return polarizer
+
 def Retarder_radians(delta, phi):
     retarder = np.array([[1, 0,          0,           0],
                          [0, 1,          0,           0],
