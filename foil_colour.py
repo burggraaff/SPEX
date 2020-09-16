@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from spex import stokes, elements
-from spectacle.general import gauss1d
+from spectacle.general import gaussMd
 
 # Load the input spectrum
 input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)
@@ -35,7 +35,6 @@ retardances_absolute = retardances_relative * 560.
 
 # Integral of RGB intensities
 integral_SRF = np.zeros((3,len(retardances_relative)))
-statistic = np.zeros_like(retardances_relative)
 
 # Create foils and propagate through them
 foils = np.stack([elements.Retarder_wavelengths(retardance_absolute, 45, wavelengths) for retardance_absolute in retardances_absolute])
@@ -51,6 +50,7 @@ for i, (retardance_relative, retardance_absolute, intensity) in enumerate(zip(re
     # Status indicator
     label = f"Retardance: {retardance_absolute:.0f} nm ; {retardance_relative:4.1f} $\lambda$"
 
+    # Make plots
     plt.figure(figsize=(5,4))
     plt.plot(wavelengths, intensity)
     plt.xlim(380, 720)
@@ -65,8 +65,6 @@ for i, (retardance_relative, retardance_absolute, intensity) in enumerate(zip(re
     intensity_SRF = intensity * SRF_RGB_interp
 
     integral_SRF[:,i] = np.trapz(intensity_SRF, x=wavelengths, axis=1)
-
-    statistic[i] = np.nanmean(gauss1d(intensity, sigma=5))
 
     print(retardance_absolute, "nm")
 
@@ -84,6 +82,11 @@ plt.ylabel("R/B hue angle [degrees]")
 plt.savefig("retardance_hue.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
+
+intensities_smooth = gaussMd(intensities, sigma=(0,5))
+derivative = np.diff(intensities_smooth, axis=1)
+
+statistic = [len(np.where(intensity >= 0.1)[0]) for intensity in intensities_smooth]
 
 plt.plot(retardances_relative, statistic)
 plt.xlabel("Retardance in $\lambda$ at 560 nm")
