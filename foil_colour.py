@@ -84,7 +84,7 @@ plt.savefig("retardance_hue.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
 
-intensities_smooth = gaussMd(intensities, sigma=(0,5))
+intensities_smooth = gaussMd(intensities, sigma=(0,10))
 derivative = np.diff(intensities_smooth, axis=1)
 
 statistic = [len(np.where(intensity >= 0.1)[0]) for intensity in intensities_smooth]
