@@ -64,17 +64,6 @@ for i, (retardance_relative, retardance_absolute, intensity) in enumerate(zip(re
     # Get the intensity in RGB
     intensity_SRF = intensity * SRF_RGB_interp
 
-    plt.figure(figsize=(5,4))
-    for j, c in enumerate("rgb"):
-        plt.plot(wavelengths, intensity_SRF[j], c=c)
-    plt.xlim(380, 720)
-    plt.ylim(-0.02, 0.5)
-    plt.xlabel("Wavelength [nm]")
-    plt.ylabel("Intensity [a.u.]")
-    plt.annotate(label, xy=(0.1,0.9), xycoords="figure fraction")
-    plt.savefig(f"animation/RGB_spectrum_{retardance_absolute:07.2f}.png")
-    plt.close()
-
     integral_SRF[:,i] = np.trapz(intensity_SRF, x=wavelengths, axis=1)
 
     statistic[i] = np.nanmean(gauss1d(intensity, sigma=5))
