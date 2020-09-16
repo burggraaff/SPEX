@@ -5,19 +5,20 @@ from spectacle.general import gaussMd
 
 # Load the input spectrum
 input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)
-input_spectrum = input_spectrum[input_spectrum[:,0] >= 300]
-# input_spectrum = input_spectrum[input_spectrum[:,0] <= 720]
+
+# Create the source spectrum, fully unpolarised
+wavelength_step = 0.3
+wavelengths = np.arange(320, 850, wavelength_step)
+source_wavelengths = input_spectrum[:,0]
+source_intensity = input_spectrum[:,1] / np.nanmax(input_spectrum[:,1])
+source_intensity = np.interp(wavelengths, source_wavelengths, source_intensity)
+source = stokes.Stokes_nm(source_intensity, 0, 0, 0)
 
 # Load the SRFs
 SRF_path = r"C:\Users\Burggraaff\SPECTACLE_data\iPhone_SE\calibration\iPhone_SE_spectral_response.csv"
 SRF = np.loadtxt(SRF_path, delimiter=",")
 SRF_wavelengths = SRF[:,0]
 SRF_RGB = SRF[:,1:4]
-
-# Create the source spectrum, fully unpolarised
-wavelengths = input_spectrum[:,0]
-source_intensity = input_spectrum[:,1] / np.nanmax(input_spectrum[:,1])
-source = stokes.Stokes_nm(source_intensity, 0, 0, 0)
 
 # Interpolate the SRFs to the source spectrum wavelengths
 SRF_RGB_interp = np.stack([np.interp(wavelengths, SRF_wavelengths, SRF, left=0, right=0) for SRF in SRF_RGB.T])
@@ -61,22 +62,22 @@ for i, (retardance_relative, retardance_absolute, intensity) in enumerate(zip(re
     plt.savefig(f"animation/raw_spectrum_{retardance_absolute:07.2f}.png")
     plt.close()
 
-    # Get the intensity in RGB
-    intensity_SRF = intensity * SRF_RGB_interp
-
-    integral_SRF[:,i] = np.trapz(intensity_SRF, x=wavelengths, axis=1)
-
     print(retardance_absolute, "nm")
 
+# Integrate over the RGB bands
+source_RGB = np.einsum("w,jw->j", source_intensity, SRF_RGB_interp) * wavelength_step
+integral_SRF = np.einsum("rw,jw->jr", intensities, SRF_RGB_interp) * wavelength_step
+integral_SRF_relative = integral_SRF / source_RGB[:,np.newaxis]
+
 for j, c in enumerate("rgb"):
-    plt.plot(retardances_relative, integral_SRF[j], c=c)
+    plt.plot(retardances_relative, integral_SRF_relative[j], c=c)
 plt.xlabel("Retardance in $\lambda$ at 560 nm")
-plt.ylabel("RGB value")
+plt.ylabel("RGB value (relative)")
 plt.savefig("retardance_RGB.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
 
-plt.plot(retardances_relative, np.rad2deg(np.arctan2(integral_SRF[0], integral_SRF[2])))
+plt.plot(retardances_relative, np.rad2deg(np.arctan2(integral_SRF_relative[0], integral_SRF_relative[2])))
 plt.xlabel("Retardance in $\lambda$ at 560 nm")
 plt.ylabel("R/B hue angle [degrees]")
 plt.savefig("retardance_hue.pdf", bbox_inches="tight")
