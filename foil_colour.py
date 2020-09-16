@@ -27,7 +27,7 @@ polariser_0 = elements.Linear_polarizer_general(0.9, 0.005, 0)
 polariser_90 = elements.Linear_polarizer_general(0.9, 0.005, 90)
 
 # Propagate the source light through the input polariser
-after_polariser_0 = np.einsum("ij,wj->wi", polariser_0, source)
+after_polariser_0 = np.einsum("ij,wi->wj", polariser_0, source)
 
 # Retardances to loop over
 retardances = np.linspace(0, 10, 250)
