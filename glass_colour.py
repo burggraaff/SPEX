@@ -68,3 +68,23 @@ plt.legend(loc="best")
 plt.savefig("retardance_xy.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
+
+# Convert to sRGB
+M_rgb_to_xyz = np.array([[0.4124564, 0.3575761, 0.1804375],
+                         [0.2126729, 0.7151522, 0.0721750],
+                         [0.0193339, 0.1191920, 0.9503041]])
+
+M_xyz_to_rgb = np.linalg.inv(M_rgb_to_xyz)
+
+intensity_XYZ_normalised = intensity_XYZ * 7
+intensity_sRGB = M_xyz_to_rgb @ intensity_XYZ_normalised
+
+# Plot sRGB as a function of retardance
+for sRGB, label in zip(intensity_sRGB, "rgb"):
+    plt.plot(retardances_relative, sRGB, label=label, lw=3, c=label)
+plt.xlabel("Retardance in $\lambda$ at 560 nm")
+plt.ylabel("sRGB")
+plt.legend(loc="best")
+plt.savefig("retardance_sRGB.pdf", bbox_inches="tight")
+plt.show()
+plt.close()
