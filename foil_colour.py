@@ -1,16 +1,17 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from spex import stokes, elements
-from spectacle.general import gaussMd
+from spectacle.general import gauss1d, gaussMd
 
 # Load the input spectrum
 input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)
 
 # Create the source spectrum, fully unpolarised
 wavelength_step = 0.3
-wavelengths = np.arange(320, 850, wavelength_step)
+wavelengths = np.arange(385, 800, wavelength_step)
 source_wavelengths = input_spectrum[:,0]
-source_intensity = input_spectrum[:,1] / np.nanmax(input_spectrum[:,1])
+source_intensity = gauss1d(input_spectrum[:,1], sigma=5)
+source_intensity = source_intensity / np.nanmax(source_intensity)
 source_intensity = np.interp(wavelengths, source_wavelengths, source_intensity)
 source = stokes.Stokes_nm(source_intensity, 0, 0, 0)
 
@@ -49,7 +50,7 @@ intensities = after_polariser_90[...,0]
 
 for i, (retardance_relative, retardance_absolute, intensity) in enumerate(zip(retardances_relative, retardances_absolute, intensities)):
     # Status indicator
-    label = f"Retardance: {retardance_absolute:.0f} nm ; {retardance_relative:4.1f} $\lambda$"
+    label = f"Retardance: {retardance_absolute:5.0f} nm ; {retardance_relative:4.1f} $\lambda$"
 
     # Make plots
     plt.figure(figsize=(5,4))
@@ -62,7 +63,7 @@ for i, (retardance_relative, retardance_absolute, intensity) in enumerate(zip(re
     plt.savefig(f"animation/raw_spectrum_{retardance_absolute:07.2f}.png")
     plt.close()
 
-    print(retardance_absolute, "nm")
+    print(label)
 
 # Integrate over the RGB bands
 source_RGB = np.einsum("w,jw->j", source_intensity, SRF_RGB_interp) * wavelength_step
@@ -87,7 +88,14 @@ plt.close()
 intensities_smooth = gaussMd(intensities, sigma=(0,10))
 derivative = np.diff(intensities_smooth, axis=1)
 
-statistic = [len(np.where(intensity >= 0.1)[0]) for intensity in intensities_smooth]
+def stat(spectrum):
+    inds = np.where((wavelengths >= 420) & (wavelengths <= 800))
+    low = np.where(spectrum[inds] < 0.02)[0]
+    steps = np.diff(low)
+    nr_minima = len(np.where(steps > 5)[0])
+    return nr_minima
+
+statistic = [stat(spectrum) for spectrum in intensities_smooth]
 
 plt.plot(retardances_relative, statistic)
 plt.xlabel("Retardance in $\lambda$ at 560 nm")
