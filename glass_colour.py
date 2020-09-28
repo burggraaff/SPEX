@@ -7,16 +7,17 @@ from colorio._tools import plot_flat_gamut
 
 # Load the input spectrum
 # input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)  # Halogen lamp
-input_spectrum = np.loadtxt("input_data/ispex.ext.txt", skiprows=1, usecols=[0,1])  # Daylight
+# input_spectrum = np.loadtxt("input_data/cie_d65.txt", skiprows=1, usecols=[0,1])  # Daylight
+input_spectrum = np.stack([np.linspace(380, 800, 1500), np.ones(1500)]).T  # Equal-energy spectrum
 
 # Create the source spectrum, fully unpolarised
 wavelength_step = 0.3
 wavelengths = np.arange(385, 800, wavelength_step)
 source_wavelengths = input_spectrum[:,0]
-source_intensity = gauss1d(input_spectrum[:,1], sigma=5)
+source_intensity = input_spectrum[:,1].copy()
 source_intensity = source_intensity / np.nanmax(source_intensity)
-source_intensity = np.interp(wavelengths, source_wavelengths, source_intensity)
-# source_intensity = np.ones_like(source_intensity)  # Equal-energy spectrum
+source_intensity = np.interp(wavelengths, source_wavelengths, source_intensity, left=0, right=0)
+source_intensity = gauss1d(source_intensity, sigma=5)
 source = stokes.Stokes_nm(source_intensity, 0, 0, 0)
 
 # Create the input and output polarisers at 0 and 90 degrees, respectively
