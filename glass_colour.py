@@ -88,3 +88,14 @@ plt.legend(loc="best")
 plt.savefig("retardance_sRGB.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
+
+# Clip sRGB and plot as a function of retardance
+intensity_sRGB_clip = np.clip(intensity_sRGB, 0, 1)
+for sRGB, label in zip(intensity_sRGB_clip, "rgb"):
+    plt.plot(retardances_relative, sRGB, label=label, lw=3, c=label)
+plt.xlabel("Retardance in $\lambda$ at 560 nm")
+plt.ylabel("sRGB")
+plt.legend(loc="best")
+plt.savefig("retardance_sRGB_clipped.pdf", bbox_inches="tight")
+plt.show()
+plt.close()
