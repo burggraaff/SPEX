@@ -6,7 +6,8 @@ from spectacle import spectral
 from colorio._tools import plot_flat_gamut
 
 # Load the input spectrum
-input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)  # Halogen lamp
+# input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)  # Halogen lamp
+input_spectrum = np.loadtxt("input_data/ispex.ext.txt", skiprows=1, usecols=[0,1])  # Daylight
 
 # Create the source spectrum, fully unpolarised
 wavelength_step = 0.3
