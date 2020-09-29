@@ -58,7 +58,19 @@ def Retarder_frac_deg(d, t):
 
 def Retarder_wavelengths(d_nm, t, wavelengths):
     d_frac = d_nm / wavelengths
-    stack = np.stack([Retarder_frac_deg(d, t) for d in d_frac])
+    d_rad = d_frac * 2 * np.pi
+    cos_d = np.cos(d_rad)
+    sin_d = np.sin(d_rad)
+
+    stack = np.zeros((len(d_rad), 4, 4))
+    stack[:,0,0] = 1.
+    stack[:,1,1] = 1.
+    stack[:,2,2] = cos_d
+    stack[:,3,3] = cos_d
+    stack[:,3,2] = sin_d
+    stack[:,2,3] = -sin_d
+    stack = rotate_element_degrees(stack, t)
+
     return stack
 
 def Filter(attenuation):
