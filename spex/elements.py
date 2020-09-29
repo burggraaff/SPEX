@@ -7,12 +7,12 @@ def Rotation_matrix_radians(phi):
                      [0., -sin(2*phi),  cos(2*phi), 0.],
                      [0.,          0.,          0., 1.]])
 
-def rotate_element_radians(element, phi):
-    return Rotation_matrix_radians(-phi) @ element @ Rotation_matrix_radians(phi)
-
 def Rotation_matrix_degrees(phi_degrees):
     phi_radians = np.deg2rad(phi_degrees)
     return Rotation_matrix_radians(phi_radians)
+
+def rotate_element_radians(element, phi):
+    return Rotation_matrix_radians(-phi) @ element @ Rotation_matrix_radians(phi)
 
 def rotate_element_degrees(element, phi_degrees):
     phi = np.deg2rad(phi_degrees)
