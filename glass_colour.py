@@ -5,6 +5,8 @@ from spectacle.general import gauss1d, gaussMd
 from spectacle import spectral
 from colorio._tools import plot_flat_gamut
 
+nr_retardances = 250
+
 # Load the input spectrum
 # input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)  # Halogen lamp
 # input_spectrum = np.loadtxt("input_data/cie_d65.txt", skiprows=1, usecols=[0,1])  # Daylight
@@ -28,7 +30,7 @@ polariser_90 = elements.Linear_polarizer_general(0.9, 0.005, 90)
 after_polariser_0 = np.einsum("ij,wj->wi", polariser_0, source)
 
 # Retardances to loop over
-retardances_relative = np.linspace(0, 5, 250)
+retardances_relative = np.linspace(0, 5, nr_retardances)
 retardances_absolute = retardances_relative * 560.
 
 # Integral of RGB intensities
@@ -121,6 +123,22 @@ for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB_clip, i
     ax.legend(ncol=3, loc="lower right")
 axs[1].set_xlabel("Retardance in $\lambda$ at 560 nm")
 plt.savefig("retardance_sRGB_clipped.pdf", bbox_inches="tight")
+plt.show()
+plt.close()
+
+# Create spectrum
+fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True, figsize=(8,4), gridspec_kw={"hspace": 0.05, "wspace": 0})
+for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB_clip, intensity_parallel_sRGB_clip], polariser_labels):
+    rectangles = [plt.Rectangle((d,0), 5/nr_retardances, 1, color=sRGB) for d, sRGB in zip(retardances_relative, intensity_sRGB.T)]
+    for rect in rectangles:
+        ax.add_patch(rect)
+    ax.tick_params(axis="y", labelleft=False, left=False)
+    ax.set_ylabel(pol_label)
+    ax.set_xlim(0, 5)
+    ax.set_xlabel("Retardance ($\lambda$ at 560 nm)")
+axs[0].tick_params(axis="x", labelbottom=False, bottom=False, labeltop=True, top=True)
+axs[0].xaxis.set_label_position("top")
+plt.savefig("retardance_spectrum.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
 
