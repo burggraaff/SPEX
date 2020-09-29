@@ -57,11 +57,23 @@ def Retarder_frac_deg(d, t):
     return Retarder_radians(d_rad, t_rad)
 
 def Retarder_wavelengths(d_nm, t, wavelengths):
+    """
+    Create an array with wavelength-dependent Mueller matrices for retarders.
+    `wavelengths` is an array with the wavelengths in physical units (nm).
+    `d_nm` is the retardance in nm, either as a scalar (constant retardance)
+    or an array with the same length as `wavelengths`.
+    `t` is the angle of rotation in degrees.
+
+    The resulting array has a shape (L, 4, 4) where L is the length of the
+    wavelength array.
+    """
+    # Convert the given retardance(s) to radians
     d_frac = d_nm / wavelengths
     d_rad = d_frac * 2 * np.pi
     cos_d = np.cos(d_rad)
     sin_d = np.sin(d_rad)
 
+    # Create an empty array and fill in the Mueller matrix elements
     stack = np.zeros((len(d_rad), 4, 4))
     stack[:,0,0] = 1.
     stack[:,1,1] = 1.
@@ -69,6 +81,8 @@ def Retarder_wavelengths(d_nm, t, wavelengths):
     stack[:,3,3] = cos_d
     stack[:,3,2] = sin_d
     stack[:,2,3] = -sin_d
+
+    # Rotate the stack to the angle t
     stack = rotate_element_degrees(stack, t)
 
     return stack
