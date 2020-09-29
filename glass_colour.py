@@ -25,7 +25,7 @@ polariser_0 = elements.Linear_polarizer_general(0.9, 0.005, 0)
 polariser_90 = elements.Linear_polarizer_general(0.9, 0.005, 90)
 
 # Propagate the source light through the input polariser
-after_polariser_0 = np.einsum("ij,wi->wj", polariser_0, source)
+after_polariser_0 = np.einsum("ij,wj->wi", polariser_0, source)
 
 # Retardances to loop over
 retardances_relative = np.linspace(0, 5, 250)
@@ -36,7 +36,7 @@ integral_SRF = np.zeros((3,len(retardances_relative)))
 
 # Create foils and propagate through them
 foils = np.stack([elements.Retarder_wavelengths(retardance_absolute, 45, wavelengths) for retardance_absolute in retardances_absolute])
-after_foils = np.einsum("rwij,wi->rwj", foils, after_polariser_0)
+after_foils = np.einsum("rwij,wj->rwi", foils, after_polariser_0)
 
 # Propagate through the output polariser
 after_polariser_90 = np.einsum("ij,rwj->rwi", polariser_90, after_foils)
