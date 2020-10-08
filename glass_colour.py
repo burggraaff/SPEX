@@ -9,8 +9,10 @@ nr_retardances = 250
 
 # Load the input spectrum
 # input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)  # Halogen lamp
+# input_spectrum = np.loadtxt("input_data/haldeut_spectrum.txt", skiprows=13)  # Halogen-deuterium lamp
+input_spectrum = np.loadtxt("input_data/fluorescent_spectrum.txt", skiprows=13)  # Fluorescent lamp
 # input_spectrum = np.loadtxt("input_data/cie_d65.txt", skiprows=1, usecols=[0,1])  # Daylight
-input_spectrum = np.stack([np.linspace(380, 800, 1500), np.ones(1500)]).T  # Equal-energy spectrum
+# input_spectrum = np.stack([np.linspace(380, 800, 1500), np.ones(1500)]).T  # Equal-energy spectrum
 
 # Create the source spectrum, fully unpolarised
 wavelength_step = 0.3
@@ -141,6 +143,7 @@ axs[0].xaxis.set_label_position("top")
 plt.savefig("retardance_spectrum.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
+
 
 for i, (retardance_relative, retardance_absolute, intensity_orthogonal, intensity_parallel, xy_orthogonal, xy_parallel, sRGB_orthogonal, sRGB_parallel) in enumerate(zip(retardances_relative, retardances_absolute, intensities_orthogonal, intensities_parallel, intensity_orthogonal_xy.T, intensity_parallel_xy.T, intensity_orthogonal_sRGB_clip.T, intensity_parallel_sRGB_clip.T)):
     # Status indicator
