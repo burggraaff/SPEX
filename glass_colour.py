@@ -96,9 +96,13 @@ M_rgb_to_xyz = np.array([[0.4124564, 0.3575761, 0.1804375],
 
 M_xyz_to_rgb = np.linalg.inv(M_rgb_to_xyz)
 
-normalisation = 7.  # Arbitrary, controls brightness of resulting colours
-intensity_orthogonal_sRGB = M_xyz_to_rgb @ intensity_orthogonal_XYZ * normalisation
-intensity_parallel_sRGB = M_xyz_to_rgb @ intensity_parallel_XYZ * normalisation
+intensity_orthogonal_sRGB = M_xyz_to_rgb @ intensity_orthogonal_XYZ
+intensity_parallel_sRGB = M_xyz_to_rgb @ intensity_parallel_XYZ
+
+# Normalise sRGB to be between 0 and 1
+sRGB_max = np.max([intensity_orthogonal_sRGB, intensity_parallel_sRGB])
+intensity_orthogonal_sRGB /= sRGB_max
+intensity_parallel_sRGB /= sRGB_max
 
 # Plot sRGB as a function of retardance
 fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True)
@@ -144,7 +148,7 @@ plt.savefig("retardance_spectrum.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
 
-
+raise Exception
 for i, (retardance_relative, retardance_absolute, intensity_orthogonal, intensity_parallel, xy_orthogonal, xy_parallel, sRGB_orthogonal, sRGB_parallel) in enumerate(zip(retardances_relative, retardances_absolute, intensities_orthogonal, intensities_parallel, intensity_orthogonal_xy.T, intensity_parallel_xy.T, intensity_orthogonal_sRGB_clip.T, intensity_parallel_sRGB_clip.T)):
     # Status indicator
     label = f"Retardance: {retardance_absolute:5.0f} nm ; {retardance_relative:4.1f} $\lambda$"
