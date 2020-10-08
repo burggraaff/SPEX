@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from spex import stokes, elements
 from spectacle.general import gauss1d, gaussMd
+from spectacle.linearity import sRGB_generic
 from spectacle import spectral
 from colorio._tools import plot_flat_gamut
 
@@ -100,7 +101,7 @@ intensity_orthogonal_sRGB = M_xyz_to_rgb @ intensity_orthogonal_XYZ
 intensity_parallel_sRGB = M_xyz_to_rgb @ intensity_parallel_XYZ
 
 # Normalise sRGB to be between 0 and 1
-sRGB_max = np.max([intensity_orthogonal_sRGB, intensity_parallel_sRGB])
+sRGB_max = np.max([intensity_orthogonal_sRGB, intensity_parallel_sRGB]) * 1.5
 intensity_orthogonal_sRGB /= sRGB_max
 intensity_parallel_sRGB /= sRGB_max
 
@@ -109,7 +110,7 @@ fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True)
 for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB, intensity_parallel_sRGB], polariser_labels):
     for sRGB, label in zip(intensity_sRGB, "rgb"):
         ax.plot(retardances_relative, sRGB, label=label, lw=3, c=label)
-    ax.set_ylabel(f"sRGB ({pol_label})")
+    ax.set_ylabel(f"Linear sRGB\n({pol_label})")
     ax.grid(ls="--")
     ax.legend(ncol=3, loc="lower right")
 axs[1].set_xlabel("Retardance in $\lambda$ at 560 nm")
@@ -117,24 +118,28 @@ plt.savefig("retardance_sRGB.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
 
-# Clip sRGB and plot as a function of retardance
+# Clip/gamma-expand sRGB and plot as a function of retardance
 intensity_orthogonal_sRGB_clip = np.clip(intensity_orthogonal_sRGB, 0, 1)
 intensity_parallel_sRGB_clip = np.clip(intensity_parallel_sRGB, 0, 1)
+
+intensity_orthogonal_sRGB_gamma = sRGB_generic(intensity_orthogonal_sRGB_clip, normalization=1)/255
+intensity_parallel_sRGB_gamma = sRGB_generic(intensity_parallel_sRGB_clip, normalization=1)/255
+
 fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True)
-for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB_clip, intensity_parallel_sRGB_clip], polariser_labels):
+for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB_gamma, intensity_parallel_sRGB_gamma], polariser_labels):
     for sRGB, label in zip(intensity_sRGB, "rgb"):
         ax.plot(retardances_relative, sRGB, label=label, lw=3, c=label)
     ax.set_ylabel(f"sRGB ({pol_label})")
     ax.grid(ls="--")
     ax.legend(ncol=3, loc="lower right")
 axs[1].set_xlabel("Retardance in $\lambda$ at 560 nm")
-plt.savefig("retardance_sRGB_clipped.pdf", bbox_inches="tight")
+plt.savefig("retardance_sRGB_gamma.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
 
 # Create spectrum
 fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True, figsize=(8,4), gridspec_kw={"hspace": 0.05, "wspace": 0})
-for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB_clip, intensity_parallel_sRGB_clip], polariser_labels):
+for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB_gamma, intensity_parallel_sRGB_gamma], polariser_labels):
     rectangles = [plt.Rectangle((d,0), 5/nr_retardances, 1, color=sRGB) for d, sRGB in zip(retardances_relative, intensity_sRGB.T)]
     for rect in rectangles:
         ax.add_patch(rect)
@@ -148,8 +153,7 @@ plt.savefig("retardance_spectrum.pdf", bbox_inches="tight")
 plt.show()
 plt.close()
 
-raise Exception
-for i, (retardance_relative, retardance_absolute, intensity_orthogonal, intensity_parallel, xy_orthogonal, xy_parallel, sRGB_orthogonal, sRGB_parallel) in enumerate(zip(retardances_relative, retardances_absolute, intensities_orthogonal, intensities_parallel, intensity_orthogonal_xy.T, intensity_parallel_xy.T, intensity_orthogonal_sRGB_clip.T, intensity_parallel_sRGB_clip.T)):
+for i, (retardance_relative, retardance_absolute, intensity_orthogonal, intensity_parallel, xy_orthogonal, xy_parallel, sRGB_orthogonal, sRGB_parallel) in enumerate(zip(retardances_relative, retardances_absolute, intensities_orthogonal, intensities_parallel, intensity_orthogonal_xy.T, intensity_parallel_xy.T, intensity_orthogonal_sRGB_gamma.T, intensity_parallel_sRGB_gamma.T)):
     # Status indicator
     label = f"Retardance: {retardance_absolute:5.0f} nm ; {retardance_relative:4.1f} $\lambda$"
 
