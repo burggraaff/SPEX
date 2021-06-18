@@ -49,6 +49,20 @@ def load_data_file_timestamp(filename):
     return timestamp
 
 
+def load_data_bulk(filenames1, filenames2, load=load_data_file):
+    """
+    Load data in bulk.
+    `load` can be any loading function.
+    """
+    # Load all the data - shape will be [2, N, ...] with N the number of files
+    data = np.array([[load(f) for f in filenames] for filenames in [filenames1, filenames2]])
+
+    # Let N be the first axis: [N, 2, ...]
+    data = np.moveaxis(data, 1, 0)
+
+    return data
+
+
 def load_data_folder(folder):
     """
     Load all groundSPEX data from a folder.
@@ -57,9 +71,9 @@ def load_data_folder(folder):
     data_filenames1, data_filenames2 = get_filenames(folder)
 
     # Load the data into an array of shape [2, N, 3648] with N the number of files
-    data = np.array([[load_data_file(f) for f in filenames] for filenames in [data_filenames1, data_filenames2]])
-    data_dark = np.array([[load_data_file_dark(f) for f in filenames] for filenames in [data_filenames1, data_filenames2]])
-    data_timestamps = np.array([[load_data_file_timestamp(f) for f in filenames] for filenames in [data_filenames1, data_filenames2]])
+    data = load_data_bulk(data_filenames1, data_filenames2)
+    data_dark = load_data_bulk(data_filenames1, data_filenames2, load_data_file_dark)
+    data_timestamps = load_data_bulk(data_filenames1, data_filenames2, load_data_file_timestamp)
 
     return data, data_dark, data_timestamps
 
