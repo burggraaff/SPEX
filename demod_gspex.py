@@ -18,3 +18,4 @@ print(f"Loading data from {data_folder.absolute()}")
 data, data_dark, data_timestamps = G.load_data_folder(data_folder)
 
 # Dark subtraction
+data = G.correct_darkcurrent(data, data_dark)
