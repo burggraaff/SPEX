@@ -5,6 +5,7 @@ Helper functions for groundSPEX
 import numpy as np
 from matplotlib import pyplot as plt
 from pathlib import Path
+from scipy.io import readsav
 
 
 def get_filenames(folder):
@@ -61,3 +62,11 @@ def load_data_folder(folder):
     data_timestamps = np.array([[load_data_file_timestamp(f) for f in filenames] for filenames in [data_filenames1, data_filenames2]])
 
     return data, data_dark, data_timestamps
+
+
+def read_darkmap(filename="pipeline_GvH/darkmap.sav"):
+    """
+    Load a darkmap from a .sav file.
+    """
+    darkmap = readsav(filename)
+    return darkmap
