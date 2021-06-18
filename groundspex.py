@@ -16,9 +16,12 @@ def get_filenames(folder):
     # Ensure the folder is a Path object
     folder = Path(folder)
 
+    # Helper function for sorting files (make sure 10 comes after 9, not before 1)
+    sorter = lambda p: int(p.stem.split("_")[2])
+
     # Find all corresponding files
-    data_filenames1 = list(folder.glob("Spectrometer_1105161U2_*_pix.txt"))
-    data_filenames2 = list(folder.glob("Spectrometer_1105162U2_*_pix.txt"))
+    data_filenames1 = sorted(folder.glob("Spectrometer_1105161U2_*_pix.txt"), key=sorter)
+    data_filenames2 = sorted(folder.glob("Spectrometer_1105162U2_*_pix.txt"), key=sorter)
 
     return data_filenames1, data_filenames2
 
