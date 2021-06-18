@@ -1,4 +1,5 @@
 pipeline_GvH/*
+data/*
 *.npy
 *.png
 *.pdf
