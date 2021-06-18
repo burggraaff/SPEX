@@ -13,4 +13,4 @@ data_folder = Path(argv[1])
 print(f"Loading data from {data_folder.absolute()}")
 
 # Load spectra
-data = G.load_data_folder(data_folder)
+data, data_dark, data_timestamps = G.load_data_folder(data_folder)
