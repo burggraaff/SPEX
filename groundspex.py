@@ -96,8 +96,8 @@ def correct_darkcurrent(data, data_dark, darkmap=None):
     If no darkmap is given, load one from file.
     """
     # Hard code metadata for now because files were missing
-    texp = np.tile(1000., len(data))
-    temperature = np.tile(25., (len(data), 2))
+    texp = np.tile(1000., (len(data),2))
+    temperature = np.tile([25.,26], (len(data), 1))
 
     # Load darkmap from file if none was given
     if darkmap is None:
@@ -105,18 +105,18 @@ def correct_darkcurrent(data, data_dark, darkmap=None):
 
     # Ensure the axes are in the right order for numpy broadcasting
     # New order: [5, 5, nr_exposures, nr_pixels]
-    poly_darkpixels = np.moveaxis(darkmap.darkmodblack, (2, 3), (0, 1))
-    poly_spectrum = np.moveaxis(darkmap.darkmodspec, (2, 3), (0, 1))
+    polynomial_coeffs_darkpixels = np.moveaxis(darkmap.darkmodblack, (2, 3), (0, 1))
+    polynomial_coeffs_spectrum = np.moveaxis(darkmap.darkmodspec, (2, 3), (0, 1))
 
     # Apply the polynomials per channel (cannot broadcast fully, sadly)
-    darkblack = np.array([polyval2d(texp, temperature[:,j], poly_darkpixels)[j] for j in range(2)])
-    darkblack = np.moveaxis(darkblack, 2, 0)
+    darkcurrent_darkpixels = np.array([polyval2d(texp[:,j], temperature[:,j], polynomial_coeffs_darkpixels)[j] for j in range(2)])
+    darkcurrent_darkpixels = np.moveaxis(darkcurrent_darkpixels, 2, 0)
 
-    darkspec = np.array([polyval2d(texp, temperature[:,j], poly_spectrum)[j] for j in range(2)])
-    darkspec = np.moveaxis(darkspec, 2, 0)
+    darkcurrent_spectrum = np.array([polyval2d(texp[:,j], temperature[:,j], polynomial_coeffs_spectrum)[j] for j in range(2)])
+    darkcurrent_spectrum = np.moveaxis(darkcurrent_spectrum, 2, 0)
 
     # Apply the correction
-    correction_darkpixels = np.nanmean(data_dark - darkblack, axis=2)
-    data_corrected = data - darkspec - correction_darkpixels[...,np.newaxis]
+    correction_darkpixels = np.nanmean(data_dark - darkcurrent_darkpixels, axis=2)
+    data_corrected = data - darkcurrent_spectrum - correction_darkpixels[...,np.newaxis]
 
     return data_corrected
