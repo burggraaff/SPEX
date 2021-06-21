@@ -165,3 +165,11 @@ def correct_transmission(data, transmission_correction_data=None):
     data_corrected[:,1] /= transmission_correction_data
 
     return data_corrected
+
+
+def read_efficiency(filename="pipeline_GvH/efficiency.sav"):
+    """
+    Read the polarisation efficiency data from a .sav file.
+    """
+    data = readsav(filename)["fitout"]
+    return data
