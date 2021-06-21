@@ -194,3 +194,19 @@ def read_efficiency(filename="pipeline_GvH/efficiency.sav"):
     """
     data = readsav(filename)["fitout"]
     return data
+
+
+def correct_efficiency(data, wavelengths=None, efficiency_data=None):
+    """
+    Correct for polarimetric efficiency.
+    """
+    if wavelengths is None:
+        wavelengths = generate_wavelengths()
+
+    if efficiency_data is None:
+        efficiency_data = read_efficiency()
+
+    # Indices closest to 660 and 672 nm
+    ind_660 = np.nanargmin(np.abs(efficiency_data[0,5] - 660))
+    ind_672 = np.nanargmin(np.abs(efficiency_data[0,5] - 672))
+    wvlrange = np.s_[ind_660:ind_672]
