@@ -137,8 +137,8 @@ def wavelengths(x=spectrum_pixels, coeffs=wavelength_coeffs_GvH):
     """
     Calculate the wavelengths corresponding to each pixel.
     """
-    wavelengths_full = polyval(x, coeffs.T)  # This calculates the wavelengths for each channel-coefficient combination
-    wavelengths_diag = np.diagonal(wavelengths_full)  # Take only the relevant elements
-    wavelengths = wavelengths_diag.T  # Flip the axes
+    # Calculate the wavelengths corresponding to each pixel
+    # Assumes both channels have the same number of pixels (which they do)
+    wavelengths = polyval(x[0], coeffs.T)
 
     return wavelengths
