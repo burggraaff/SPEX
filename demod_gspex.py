@@ -21,6 +21,7 @@ data, data_dark, data_timestamps = G.load_data_folder(data_folder)
 data = G.correct_darkcurrent(data, data_dark)
 
 # Wavelength calibration
+wavelengths = G.wavelengths()
 
 # Differential transmission correction
 

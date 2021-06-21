@@ -3,10 +3,19 @@ Helper functions for groundSPEX
 """
 
 import numpy as np
-from numpy.polynomial.polynomial import polyval2d
+from numpy.polynomial.polynomial import polyval, polyval2d
 from matplotlib import pyplot as plt
 from pathlib import Path
 from scipy.io import readsav
+
+# Wavelength coefficients determined by Gerard van Harten, Avantes, Jos de Boer, respectively
+wavelength_coeffs_GvH = np.array([[355.688, 0.167436, -2.93242e-06, -2.22549e-10], [360.071, 0.165454, -3.35036e-06, -1.88750e-10]])
+wavelength_coeffs_Avantes = np.array([[356.377,0.167307,-2.97917e-6, -2.14825e-10], [360.610,0.165407,-3.46191e-6,-1.71402e-10]])
+wavelength_coeffs_JdB = np.array([[356.058,0.167297,-2.88384e-6,-2.28596e-10], [360.120,0.165363,-3.33891e-6,-1.90909e-10]])
+
+# Array with pixels
+nr_pixels_Avantes = 3648
+spectrum_pixels = np.tile(np.arange(nr_pixels_Avantes), (2,1))
 
 
 def get_filenames(folder):
@@ -122,3 +131,14 @@ def correct_darkcurrent(data, data_dark, darkmap=None):
     data_corrected = data - darkcurrent_spectrum - correction_darkpixels[...,np.newaxis]
 
     return data_corrected
+
+
+def wavelengths(x=spectrum_pixels, coeffs=wavelength_coeffs_GvH):
+    """
+    Calculate the wavelengths corresponding to each pixel.
+    """
+    wavelengths_full = polyval(x, coeffs.T)  # This calculates the wavelengths for each channel-coefficient combination
+    wavelengths_diag = np.diagonal(wavelengths_full)  # Take only the relevant elements
+    wavelengths = wavelengths_diag.T  # Flip the axes
+
+    return wavelengths
