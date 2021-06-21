@@ -104,16 +104,18 @@ def correct_darkcurrent(data, data_dark, darkmap=None):
         darkmap = read_darkmap()
 
     # Ensure the axes are in the right order for numpy broadcasting
-    # New order: [5, 5, nr_exposures, nr_pixels]
+    # New order: [5, 5, nr_channels, nr_pixels]
     polynomial_coeffs_darkpixels = np.moveaxis(darkmap.darkmodblack, (2, 3), (0, 1))
     polynomial_coeffs_spectrum = np.moveaxis(darkmap.darkmodspec, (2, 3), (0, 1))
 
-    # Apply the polynomials per channel (cannot broadcast fully, sadly)
-    darkcurrent_darkpixels = np.array([polyval2d(texp[:,j], temperature[:,j], polynomial_coeffs_darkpixels)[j] for j in range(2)])
-    darkcurrent_darkpixels = np.moveaxis(darkcurrent_darkpixels, 2, 0)
+    # Function to apply the 2D polynomial to each pixel
+    # Moveaxis and diagonal are necessary to only get the useful elements, and have
+    # them in the right places
+    apply_polynomial = lambda x, y, c: np.moveaxis(np.diagonal(polyval2d(x, y, c), axis2=3), 0, 2)
 
-    darkcurrent_spectrum = np.array([polyval2d(texp[:,j], temperature[:,j], polynomial_coeffs_spectrum)[j] for j in range(2)])
-    darkcurrent_spectrum = np.moveaxis(darkcurrent_spectrum, 2, 0)
+    # Apply the polynomials
+    darkcurrent_darkpixels = apply_polynomial(texp, temperature, polynomial_coeffs_darkpixels)
+    darkcurrent_spectrum = apply_polynomial(texp, temperature, polynomial_coeffs_spectrum)
 
     # Apply the correction
     correction_darkpixels = np.nanmean(data_dark - darkcurrent_darkpixels, axis=2)
