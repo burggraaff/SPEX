@@ -24,6 +24,7 @@ data = G.correct_darkcurrent(data, data_dark)
 wavelengths = G.wavelengths()
 
 # Differential transmission correction
+data = G.correct_transmission(data)
 
 # Efficiency correction
 

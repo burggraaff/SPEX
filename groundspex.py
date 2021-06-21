@@ -142,3 +142,26 @@ def wavelengths(x=spectrum_pixels, coeffs=wavelength_coeffs_GvH):
     wavelengths = polyval(x[0], coeffs.T)
 
     return wavelengths
+
+
+def read_transmission_correction(filename="pipeline_GvH/transmission.sav"):
+    """
+    Load the transmission correction from a .sav file.
+    """
+    correction = readsav(filename)["t2"]
+    return correction
+
+
+def correct_transmission(data, transmission_correction_data=None):
+    """
+    Apply a transmission correction to given data.
+    If no correction data are given, load from file.
+    """
+    if transmission_correction_data is None:
+        transmission_correction_data = read_transmission_correction()
+
+    # Correct the data - divide channel 1 by the correction data
+    data_corrected = data.copy()
+    data_corrected[:,1] /= transmission_correction_data
+
+    return data_corrected
