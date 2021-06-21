@@ -7,6 +7,7 @@ from numpy.polynomial.polynomial import polyval, polyval2d
 from matplotlib import pyplot as plt
 from pathlib import Path
 from scipy.io import readsav
+from scipy.interpolate import interp1d
 
 # Wavelength coefficients determined by Gerard van Harten, Avantes, Jos de Boer, respectively
 wavelength_coeffs_GvH = np.array([[355.688, 0.167436, -2.93242e-06, -2.22549e-10], [360.071, 0.165454, -3.35036e-06, -1.88750e-10]])
@@ -133,7 +134,7 @@ def correct_darkcurrent(data, data_dark, darkmap=None):
     return data_corrected
 
 
-def wavelengths(x=spectrum_pixels, coeffs=wavelength_coeffs_GvH):
+def generate_wavelengths(x=spectrum_pixels, coeffs=wavelength_coeffs_GvH):
     """
     Calculate the wavelengths corresponding to each pixel.
     """
@@ -142,6 +143,26 @@ def wavelengths(x=spectrum_pixels, coeffs=wavelength_coeffs_GvH):
     wavelengths = polyval(x[0], coeffs.T)
 
     return wavelengths
+
+
+def correct_wavelengths(data, wavelengths=None):
+    """
+    Correct the wavelength ranges to be equal.
+    Interpolates channel 0 (which is wider) to channel 1's wavelengths.
+    """
+    if wavelengths is None:
+        wavelengths = generate_wavelengths()
+
+    # Generate a function that does the interpolation
+    # This probably breaks down if you have a lot of exposures in data
+    interpolation_function = interp1d(wavelengths[0], data[:,0])
+
+    # Evaluate this function at the new wavelengths
+    data_corrected = data.copy()
+    data_corrected[:,0] = interpolation_function(wavelengths[1])
+
+    # Return the wavelengths (same for both channels) and result
+    return wavelengths[1], data_corrected
 
 
 def read_transmission_correction(filename="pipeline_GvH/transmission.sav"):
