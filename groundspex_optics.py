@@ -27,6 +27,13 @@ class Material(object):
         self.source = source
 
 
+    def __repr__(self):
+        """
+        The string that gets printed to describe this object.
+        """
+        return f"Optical material {self.name}, based on data from {self.source}"
+
+
     def calculate_refractive_index(self, wavelengths, temperature):
         """
         Calculate the refractive index at given wavelengths and temperature using
