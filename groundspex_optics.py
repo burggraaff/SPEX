@@ -43,45 +43,61 @@ class Material(object):
                                          + ...
                                          + P(N-1)*lambda^2 / (lambda^2 - PN) )
 
-        The resulting array will have a shape of [2, nr_wavelengths] where the first
+        The resulting array will have a shape of [nr_wavelengths, 2] where the last
         axis represents the ordinary (0) and extraordinary (1) refractive indices.
         The array will consist of complex numbers.
         """
+        # Convert from nm to microns
+        wavelengths_um = wavelengths / 1000.
+
         # Extract the Sellmeier coefficients from the data - odd and even elements, after the first
         B = self.data_n[:,1::2]
         C = self.data_n[:,2::2]
 
         # Calculate the individual terms first
-        wavelengths_squared = wavelengths[:,np.newaxis,np.newaxis]**2
+        wavelengths_squared = wavelengths_um[:,np.newaxis,np.newaxis]**2
         BC_terms = B*wavelengths_squared / (wavelengths_squared - C)
 
         # Calculate the refractive index
         n = np.sqrt(self.data_n[:,0] + np.nansum(BC_terms, axis=2))
 
-        # Flip the axes
-        n = n.T
+        # Temperature correction
+        dT = temperature - self.data_dndT[:,0]
+
+        # Gosh dndT equation
+        Econv = 1e9 * 6.626e-34 * 2.9979e8 / 1.6e-19
+        wavelengths_ig = Econv / self.data_dndT[:,4]
+        RoRe = wavelengths_um**2 / (wavelengths_um**2 - wavelengths_ig[:,np.newaxis]**2)
+        dn_abs_dT = (self.data_dndT[:,2,np.newaxis] * RoRe + self.data_dndT[:,3,np.newaxis] * RoRe**2).T / (2*n)
+        n += dn_abs_dT * dT
 
         return n
 
 
 Al2O3 = Material(name="Al2O3/Sapphire",
-                data_n = np.array([[1., 1.43134936, 0.0726631**2, 0.65054713, 0.1193242**2, 5.3414021, 18.028251**2], [1., 1.5039759, 0.0740288**2, 0.55069141, 0.1216529**2,6.59273791, 20.072248**2]]),
-                data_dndT = np.array([[293., 1.755, -45.2665E-06, 83.5457E-06, 8.27, 5.85,  7.21, -2.4], [293., 1.748, -39.8961E-06, 81.9579E-06, 8.00, 5.42,  6.47, -2.2]]),
+                data_n = np.array([[1., 1.43134936, 0.0726631**2, 0.65054713, 0.1193242**2, 5.3414021, 18.028251**2],
+                                   [1., 1.5039759,  0.0740288**2, 0.55069141, 0.1216529**2,6.59273791, 20.072248**2]]),
+                data_dndT = np.array([[293., 1.755, -45.2665E-06, 83.5457E-06, 8.27, 5.85,  7.21, -2.4],
+                                      [293., 1.748, -39.8961E-06, 81.9579E-06, 8.00, 5.42,  6.47, -2.2]]),
                 data_transmission = None,
                 data_TEC = np.array([7.21e-6, 6.47e-6]),
                 source = "Malitson & Dodge 1972, J. Opt. Soc. Am. 62, 1405")
 
 
 MgF2 = Material(name="MgF2",
-                data_n = np.array([[1., 0.48755108, 0.04338408**2, 0.39875031, 0.09461442**2, 2.3120353, 23.793604**2], [1., 0.41344023, 0.03684262**2, 0.50497499, 0.09076162**2, 2.4904862, 23.771995**2]]),
-                data_dndT = np.array([[293., 1.290, -37.2043e-06, 39.3186e-06, 13.10, 8.00,  9.3, -4.70], [293., 1.290, -56.7859E-06, 57.3986E-06, 15.50, 8.00, 14.2, -6.90]]),
+                data_n = np.array([[1., 0.48755108, 0.04338408**2, 0.39875031, 0.09461442**2, 2.3120353, 23.793604**2],
+                                   [1., 0.41344023, 0.03684262**2, 0.50497499, 0.09076162**2, 2.4904862, 23.771995**2]]),
+                data_dndT = np.array([[293., 1.290, -37.2043e-06, 39.3186e-06, 13.10, 8.00,  9.3, -4.70],
+                                      [293., 1.290, -56.7859E-06, 57.3986E-06, 15.50, 8.00, 14.2, -6.90]]),
                 data_transmission = None,
                 data_TEC = np.array([9.3e-6, 14.2e-6]),
                 source = "Dodge 1984, Applt. Opt. 23")
 
 SiO2 = Material(name="SiO2",
-                data_n = np.array([[1.28604141, 1.07044083, 1.00585997*0.01, 1.10202242, 100.], [1.28851804, 1.09509924, 1.02101864*0.01, 1.15662475, 100.]]),
-                data_dndT = np.array([[293., 1.515, -61.184E-06, 43.9990E-06, 10.30, 8.90,  6.88, -3.02], [293., 1.520, -70.1182E-06, 49.2875E-06, 10.30, 8.90, 12.38, -3.32]]),
+                data_n = np.array([[1.28604141, 1.07044083, 1.00585997*0.01, 1.10202242, 100.],
+                                   [1.28851804, 1.09509924, 1.02101864*0.01, 1.15662475, 100.]]),
+                data_dndT = np.array([[293., 1.515, -61.184E-06,  43.9990E-06, 10.30, 8.90,  6.88, -3.02],
+                                      [293., 1.520, -70.1182E-06, 49.2875E-06, 10.30, 8.90, 12.38, -3.32]]),
                 data_transmission = None,
                 data_TEC = np.array([6.88e-6, 12.38e-6]),
                 source = "Gosh 1999 (Halle)")
