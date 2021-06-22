@@ -62,19 +62,22 @@ class Material(object):
         # Calculate the refractive index
         n = np.sqrt(self.data_n[:,0] + np.nansum(BC_terms, axis=2))
 
-        # Temperature correction
+        # Temperature correction respective to reference temperature
         dT = temperature - self.data_dndT[:,0]
 
         if self.data_dndT[0,7] == 0:
             # Schott's Sellmeier-type equation
-            pass
+            # https://www.schott.com/d/advanced_optics/02ffdb0d-00a6-408f-84a5-19de56652849/1.2/tie_29_refractive_index_and_dispersion_eng.pdf
+            dn_abs_dT = (n**2 - 1) / (2*n) * (self.data_dndT[:,1] * dT + self.data_dndT[:,2] * dT**2 + self.data_dndT[:,3] * dT**3 + (self.data_dndT[:,4] * dT + self.data_dndT[:,5] * dT**2) / (wavelengths_um[:,np.newaxis]**2 - self.data_dndT[:,6]**2))
         else:
-            # Gosh dndT equation
+            # Ghosh dndT equation
+            # https://www.osapublishing.org/ao/abstract.cfm?uri=ao-36-7-1540 ?
             Econv = 1e9 * 6.626e-34 * 2.9979e8 / 1.6e-19
             wavelengths_ig = Econv / self.data_dndT[:,4]
             RoRe = wavelengths_um**2 / (wavelengths_um**2 - wavelengths_ig[:,np.newaxis]**2)
             dn_abs_dT = (self.data_dndT[:,2,np.newaxis] * RoRe + self.data_dndT[:,3,np.newaxis] * RoRe**2).T / (2*n)
-            n += dn_abs_dT * dT
+
+        n += dn_abs_dT * dT
 
         return n
 
@@ -112,7 +115,7 @@ SiO2 = Material(name="SiO2/Quartz",
                                       [293., 1.520, -70.1182E-06, 49.2875E-06, 10.30, 8.90, 12.38, -3.32]]),
                 data_transmission = None,
                 data_TEC = np.array([6.88e-6, 12.38e-6]),
-                source = "Gosh 1999 (Halle)")
+                source = "Ghosh 1999 [https://doi.org/10.1016/S0030-4018(99)00091-7]")
 
 # ; beta-BaB2O4, BBO, 0.22 - 1.06 micron - dn/dT values of beta-BBO
 # ; Eimerl, D., Davis, L., and Velsko, S., Optical, mechanical, and thermal properties of barium borate,
