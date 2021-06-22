@@ -82,11 +82,23 @@ class Material(object):
         return n
 
 
-    def retardance(self, wavelengths, temperature):
+    def retardance(self, wavelengths, temperature, thickness):
         """
         Calculate the retardance of this material at given wavelengths and temperature.
+
+        Thickness in microns?
         """
-        pass
+        # Calculate the ordinary and extraordinary refractive indices
+        n = self.refractive_index(wavelengths, temperature)
+
+        # Calculate the birefringence
+        biref = n[:,1] - n[:,0]
+
+        # Calculate thermal expansion
+        dl = 1e6 * thickness * (1 + self.data_TEC[0] * (temperature - 293.))
+
+        # Calculate retardance
+
 
 
 Al2O3 = Material(name="Al2O3/Sapphire",
