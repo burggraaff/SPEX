@@ -34,7 +34,7 @@ class Material(object):
         return f"Optical material {self.name}, based on data from {self.source}"
 
 
-    def calculate_refractive_index(self, wavelengths, temperature):
+    def refractive_index(self, wavelengths, temperature):
         """
         Calculate the refractive index at given wavelengths and temperature using
         the Sellmeier equation.
