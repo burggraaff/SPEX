@@ -2,10 +2,12 @@
 Helper functions for groundSPEX
 """
 
+from pathlib import Path
+from functools import partial
+
 import numpy as np
 from numpy.polynomial.polynomial import polyval, polyval2d
 from matplotlib import pyplot as plt
-from pathlib import Path
 from scipy.io import readsav
 from scipy.interpolate import interp1d
 
@@ -17,6 +19,9 @@ wavelength_coeffs_JdB = np.array([[356.058,0.167297,-2.88384e-6,-2.28596e-10], [
 # Array with pixels
 nr_pixels_Avantes = 3648
 spectrum_pixels = np.tile(np.arange(nr_pixels_Avantes), (2,1))
+
+
+load_csv = partial(np.genfromtxt, delimiter=",")
 
 
 def get_filenames(folder):
@@ -40,7 +45,11 @@ def load_data_file(filename):
     """
     Load a groundSPEX spectrum from file.
     """
-    counts = np.genfromtxt(filename, delimiter=",")[:-1]
+    counts = load_csv(filename)[:-1]  # Remove the last element which is always empty
+
+    # groundSPEX data files have all spectra concatenated, so if we have multiple spectra in this file, split them
+    if len(counts) > nr_pixels_Avantes:
+        counts = counts.reshape((-1, nr_pixels_Avantes))
 
     return counts
 
@@ -50,8 +59,8 @@ def load_data_file_dark(filename):
     Load a dark pixel file from a spectrum filename.
     """
     filename_dark = filename.with_suffix(".dark13.txt")
-    dark_data = load_data_file(filename_dark)
-    return dark_data
+    counts_dark = load_csv(filename_dark)  # Dark data do not have empty elements at the end
+    return counts_dark
 
 
 def load_data_file_timestamp(filename):
@@ -222,4 +231,3 @@ def demodulate(data, wavelengths=None, wavelength_range=[370., 800.]):
     # Select the relevant wavelengths
     wvl = np.where((wavelengths > wavelength_range[0]) & (wavelengths < wavelength_range[1]))[0]
     wavelengths, data = wavelengths[wvl], data[...,wvl]
-
