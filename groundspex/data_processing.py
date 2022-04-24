@@ -38,7 +38,6 @@ def correct_darkcurrent(data, data_dark, darkmap=None, texp=200., temperature=26
     darkcurrent_spectrum = apply_polynomial(texp, temperature, polynomial_coeffs_spectrum)
 
     # Apply the correction
-    print(data_dark.shape, darkcurrent_darkpixels.shape)
     correction_darkpixels = np.nanmean(data_dark - darkcurrent_darkpixels, axis=2)
     data_corrected = data - darkcurrent_spectrum - correction_darkpixels[...,np.newaxis]
 
