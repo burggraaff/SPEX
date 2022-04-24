@@ -5,9 +5,9 @@ from functools import partial
 import numpy as np
 from numpy.polynomial.polynomial import polyval, polyval2d
 from matplotlib import pyplot as plt
-from scipy.io import readsav
 from scipy.interpolate import interp1d
 from .instrument import PIXEL_ARRAY_DUALCHANNEL
+from . import io
 
 # Wavelength coefficients determined by Gerard van Harten, Avantes, Jos de Boer, respectively
 wavelength_coeffs_GvH = np.array([[355.688, 0.167436, -2.93242e-06, -2.22549e-10], [360.071, 0.165454, -3.35036e-06, -1.88750e-10]])
@@ -26,7 +26,7 @@ def correct_darkcurrent(data, data_dark, darkmap=None):
 
     # Load darkmap from file if none was given
     if darkmap is None:
-        darkmap = read_darkmap()
+        darkmap = io.read_darkmap()
 
     # Ensure the axes are in the right order for numpy broadcasting
     # New order: [5, 5, nr_channels, nr_pixels]
@@ -86,7 +86,7 @@ def correct_transmission(data, transmission_correction_data=None):
     If no correction data are given, load from file.
     """
     if transmission_correction_data is None:
-        transmission_correction_data = read_transmission_correction()
+        transmission_correction_data = io.read_transmission_correction()
 
     # Correct the data - divide channel 1 by the correction data
     data_corrected = data.copy()
@@ -103,7 +103,7 @@ def correct_efficiency(data, wavelengths=None, efficiency_data=None):
         wavelengths = generate_wavelengths()
 
     if efficiency_data is None:
-        efficiency_data = read_efficiency()
+        efficiency_data = io.read_efficiency()
 
     # Indices closest to 660 and 672 nm
     ind_660 = np.nanargmin(np.abs(efficiency_data[0,5] - 660))

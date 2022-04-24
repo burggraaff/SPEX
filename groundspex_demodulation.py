@@ -39,7 +39,7 @@ plt.close()
 print("Saved outlier plot")
 
 # Dark subtraction
-data = G.correct_darkcurrent(data, data_dark)
+data = groundspex.data_processing.correct_darkcurrent(data, data_dark)
 print("Dark subtraction done")
 
 # Wavelength calibration

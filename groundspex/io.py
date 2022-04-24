@@ -4,6 +4,7 @@ groundSPEX input/output functions
 from functools import partial
 from pathlib import Path
 import numpy as np
+from scipy.io import readsav
 from .instrument import PIXEL_NUMBER_AVANTES
 
 load_csv = partial(np.genfromtxt, delimiter=",")
