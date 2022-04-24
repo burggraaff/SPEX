@@ -44,7 +44,7 @@ def load_data_file_dark(filename):
     Load a dark pixel file from a spectrum filename.
     """
     filename_dark = filename.with_suffix(".dark13.txt")
-    counts_dark = load_csv(filename_dark)  # Dark data do not have empty elements at the end
+    counts_dark = load_csv(filename_dark)[...,:13]  # Remove the 14th element in each row, which is always empty
     return counts_dark
 
 
@@ -62,11 +62,11 @@ def load_data_bulk(filenames1, filenames2, load=load_data_file):
     Load data in bulk.
     `load` can be any loading function.
     """
-    # Load all the data - shape will be [2, N, ...] with N the number of files
+    # Load all the data - shape will be [2, nr_files, nr_spectra, nr_pixels]
     data = np.array([[load(f) for f in filenames] for filenames in [filenames1, filenames2]])
 
-    # Let N be the first axis: [N, 2, ...]
-    data = np.moveaxis(data, 1, 0)
+    # Reshape to [nr_files, nr_spectra, 2, nr_pixels]
+    data = np.moveaxis(data, (1, 2), (0, 1))
 
     # If N = 1, remove that axis
     data = np.squeeze(data)

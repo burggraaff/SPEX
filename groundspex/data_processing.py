@@ -15,15 +15,11 @@ wavelength_coeffs_Avantes = np.array([[356.377,0.167307,-2.97917e-6, -2.14825e-1
 wavelength_coeffs_JdB = np.array([[356.058,0.167297,-2.88384e-6,-2.28596e-10], [360.120,0.165363,-3.33891e-6,-1.90909e-10]])
 
 
-def correct_darkcurrent(data, data_dark, darkmap=None):
+def correct_darkcurrent(data, data_dark, darkmap=None, texp=200., temperature=26.):
     """
     Apply a dark current correction to given data.
     If no darkmap is given, load one from file.
     """
-    # Hard code metadata for now because files were missing
-    texp = np.tile(1000., (len(data),2))
-    temperature = np.tile([25.,26], (len(data), 1))
-
     # Load darkmap from file if none was given
     if darkmap is None:
         darkmap = io.read_darkmap()
@@ -34,15 +30,15 @@ def correct_darkcurrent(data, data_dark, darkmap=None):
     polynomial_coeffs_spectrum = np.moveaxis(darkmap.darkmodspec, (2, 3), (0, 1))
 
     # Function to apply the 2D polynomial to each pixel
-    # Moveaxis and diagonal are necessary to only get the useful elements, and have
-    # them in the right places
-    apply_polynomial = lambda x, y, c: np.moveaxis(np.diagonal(polyval2d(x, y, c), axis2=3), 0, 2)
+    # apply_polynomial = lambda x, y, c: np.moveaxis(np.diagonal(polyval2d(x, y, c), axis2=-1), 0, 2)
+    apply_polynomial = lambda x, y, c: polyval2d(x, y, c)
 
     # Apply the polynomials
     darkcurrent_darkpixels = apply_polynomial(texp, temperature, polynomial_coeffs_darkpixels)
     darkcurrent_spectrum = apply_polynomial(texp, temperature, polynomial_coeffs_spectrum)
 
     # Apply the correction
+    print(data_dark.shape, darkcurrent_darkpixels.shape)
     correction_darkpixels = np.nanmean(data_dark - darkcurrent_darkpixels, axis=2)
     data_corrected = data - darkcurrent_spectrum - correction_darkpixels[...,np.newaxis]
 

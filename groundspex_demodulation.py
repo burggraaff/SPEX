@@ -43,11 +43,11 @@ data = groundspex.data_processing.correct_darkcurrent(data, data_dark)
 print("Dark subtraction done")
 
 # Wavelength calibration
-wavelengths, data = G.correct_wavelengths(data)
+wavelengths, data = groundspex.data_processing.correct_wavelengths(data)
 print("Wavelength correction done")
 
 # Differential transmission correction
-data = G.correct_transmission(data)
+data = groundspex.data_processing.correct_transmission(data)
 print("Transmission correction done")
 
 # Efficiency correction
