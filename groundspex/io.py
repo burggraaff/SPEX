@@ -67,6 +67,9 @@ def load_data_bulk(filenames1, filenames2, load=load_data_file):
     # Let N be the first axis: [N, 2, ...]
     data = np.moveaxis(data, 1, 0)
 
+    # If N = 1, remove that axis
+    data = np.squeeze(data)
+
     return data
 
 
