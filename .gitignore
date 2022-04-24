@@ -1,6 +1,7 @@
 pipeline_GvH/*
 aaron/*
 data/*
+results/*
 *.npy
 *.png
 *.pdf

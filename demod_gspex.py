@@ -18,6 +18,27 @@ print(f"Loading data from {data_folder.absolute()}")
 data, data_dark, data_timestamps = G.load_data_folder(data_folder)
 print("Data loaded")
 
+# Plot the raw data
+plt.plot(data[0,0,...].T, c="k", alpha=0.1, rasterized=True)
+plt.xlabel("Spectral pixel")
+plt.ylabel("Radiance [ADU]")
+plt.title(data_folder.stem)
+plt.grid(ls="--")
+plt.savefig(f"{data_folder.stem}_allspectra.png", dpi=300)
+plt.close()
+print("Saved raw data plot")
+
+# Plot the median and outliers
+plt.plot(np.nanmedian(data[0,0], axis=0), c="k", rasterized=True)
+plt.plot(data[0,0,data[0,0,:,2000].argmax()], c="b", rasterized=True)
+plt.xlabel("Spectral pixel")
+plt.ylabel("Radiance [ADU]")
+plt.title(data_folder.stem)
+plt.grid(ls="--")
+plt.savefig(f"{data_folder.stem}_outlier.png", dpi=300)
+plt.close()
+print("Saved outlier plot")
+
 # Dark subtraction
 data = G.correct_darkcurrent(data, data_dark)
 print("Dark subtraction done")

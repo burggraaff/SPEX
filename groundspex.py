@@ -68,7 +68,7 @@ def load_data_file_timestamp(filename):
     Load a timestamp data file from a spectrum filename.
     """
     filename_timestamp = filename.with_suffix(".timestamps.txt")
-    timestamp = np.loadtxt(filename_timestamp, dtype=np.int32)
+    timestamp = np.loadtxt(filename_timestamp, dtype=np.int64)
     return timestamp
 
 
