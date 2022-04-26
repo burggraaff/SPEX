@@ -118,6 +118,19 @@ def spectral_resolution_polarimetric(wavelengths, retardance_mor=groundspex.MOR_
     return wavelengths**2 / retardance_mor
 
 
+def fit_modulation_single(wavelengths, ydata, func=modulation_to_fit, p0=[0.1, 0.1, 0.5, groundspex.MOR_RETARDANCE_NOMINAL], bounds=([0., 0., -1., groundspex.MOR_RETARDANCE_NOMINAL*0.9], [1., 2*np.pi, 1., groundspex.MOR_RETARDANCE_NOMINAL*1.1]), **kwargs):
+    """
+    Fit the modulation of a single spectrum.
+    Catches RuntimeErrors when there is no solution, and returns NaN in that case.
+    """
+    try:
+        popt, pcov = curve_fit(func, wavelengths, ydata, p0=p0, bounds=bounds)
+    except RuntimeError:
+        popt = np.tile(np.nan, 4)
+        pcov = np.tile(np.nan, (4, 4))
+    return popt, pcov
+
+
 # Crop wavelength range to 420 -- 850 nm
 crop = np.where((wavelengths >= 420) & (wavelengths <= 850))[0]
 wavelengths = wavelengths[crop]
@@ -133,18 +146,23 @@ data_fraction = data_difference/Stokes_I
 # Loop over wavelengths
 spectral_resolutions = spectral_resolution_polarimetric(wavelengths)
 spectral_windows = [np.where((wavelengths >= l-r*0.5) & (wavelengths <= l+r*0.5))[0] for l, r in zip(wavelengths, spectral_resolutions)]
-popt, pcov = zip(*[curve_fit(modulation_to_fit, wavelengths[ind], data_normalised[1,ind], p0=[0.1, 0.1, 0.5, groundspex.MOR_RETARDANCE_NOMINAL], bounds=([0., 0., -1., groundspex.MOR_RETARDANCE_NOMINAL*0.9], [1., 2*np.pi, 1., groundspex.MOR_RETARDANCE_NOMINAL*1.1])) for ind in spectral_windows])
+popt, pcov = zip(*[fit_modulation_single(wavelengths[ind], data_normalised[1,ind]) for ind in spectral_windows])
 popt = np.array(popt)
 pcov = np.array(pcov)
 dolp, aolp, offsets, retardance_fit = popt.T
+dolp_uncertainty, aolp_uncertainty, offsets_uncertainty, retardance_fit_uncertainty = np.sqrt(np.diagonal(pcov, axis1=-2, axis2=-1)).T
 
 # Smooth polarisation
 dolp_smooth = gauss1d(dolp, sigma=25)
+dolp_uncertainty_smooth = gauss1d(dolp_uncertainty, sigma=25)
 aolp_smooth = gauss1d(aolp, sigma=25)
+aolp_uncertainty_smooth = gauss1d(aolp_uncertainty, sigma=25)
 
 # Plot and save
 fig, ax1 = plt.subplots()
 ax1.plot(wavelengths, Stokes_I, c='k')
+ax1.plot(wavelengths, data_demod[0], c=RGB[0])
+ax1.plot(wavelengths, data_demod[1], c=RGB[2])
 ax1.set_xlabel("Wavelength [nm]")
 ax1.set_ylabel("Radiance [ADU]")
 ax1.set_xlim(wavelengths[0], wavelengths[-1])
@@ -153,6 +171,7 @@ ax1.set_title(data_folder.stem)
 
 ax2 = ax1.twinx()
 ax2.plot(wavelengths, 100*dolp_smooth, c=RGB[1])
+ax2.fill_between(wavelengths, 100*(dolp_smooth-dolp_uncertainty_smooth), 100*(dolp_smooth+dolp_uncertainty_smooth), facecolor=RGB[1], alpha=0.5)
 ax2.set_ylabel("Degree of Linear Polarisation [%]", color=RGB[1])
 ax2.set_ylim(0, 30)
 
