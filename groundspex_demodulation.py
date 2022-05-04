@@ -21,13 +21,7 @@ data, data_dark, data_timestamps = groundspex.load_data_folder(data_folder)
 print("Data loaded")
 
 # Plot the raw data
-plt.plot(data[...,0,:].T, c="k", alpha=0.1, rasterized=True)
-plt.xlabel("Spectral pixel")
-plt.ylabel("Radiance [ADU]")
-plt.title(data_folder.stem)
-plt.grid(ls="--")
-plt.savefig(f"results/{data_folder.stem}_allspectra_raw.png", dpi=300)
-plt.close()
+groundspex.plot.plot_spectrum_stack_dualchannel(groundspex.instrument.PIXEL_ARRAY_DUALCHANNEL[0], data, xlabel="Pixel number", title=data_folder.stem, saveto=f"results/{data_folder.stem}_allspectra_raw.png")
 print("Saved raw data plot")
 
 # Dark subtraction
@@ -43,14 +37,7 @@ data = groundspex.data_processing.correct_transmission(data)
 print("Transmission correction done")
 
 # Plot the corrected data
-plt.plot(wavelengths, data[...,0,:].T, c="k", alpha=0.1, rasterized=True)
-plt.xlim(wavelengths[0], wavelengths[-1])
-plt.xlabel("Wavelength [nm]")
-plt.ylabel("Radiance [ADU]")
-plt.title(data_folder.stem)
-plt.grid(ls="--")
-plt.savefig(f"results/{data_folder.stem}_allspectra_corrected.png", dpi=300)
-plt.close()
+groundspex.plot.plot_spectrum_stack_dualchannel(wavelengths, data, title=data_folder.stem, saveto=f"results/{data_folder.stem}_allspectra_corrected.png")
 print("Saved corrected data plot")
 
 # Plot the median and outliers
