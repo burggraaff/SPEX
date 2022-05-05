@@ -79,6 +79,8 @@ dolp_smooth = gauss1d(dolp, sigma=25)
 dolp_uncertainty_smooth = gauss1d(dolp_uncertainty, sigma=25)
 aolp_smooth = gauss1d(aolp, sigma=25)
 aolp_uncertainty_smooth = gauss1d(aolp_uncertainty, sigma=25)
+retardance_smooth = gauss1d(retardance_fit, sigma=100)
+retardance_uncertainty_smooth = gauss1d(retardance_fit_uncertainty, sigma=100)
 
 # Plot and save
 fig, ax1 = plt.subplots()
