@@ -4,7 +4,7 @@ Demodulation pipeline for groundSPEX data
 from pathlib import Path
 from sys import argv
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, patheffects as pe
 from spectacle.general import gauss1d
 from spectacle.plot import RGB_OkabeIto as RGB
 import groundspex
@@ -83,21 +83,24 @@ retardance_smooth = gauss1d(retardance_fit, sigma=100)
 retardance_uncertainty_smooth = gauss1d(retardance_fit_uncertainty, sigma=100)
 
 # Plot and save
-fig, ax1 = plt.subplots(figsize=(2.48, 2.48))
+fig, ax1 = plt.subplots(figsize=(5.3, 2.4), tight_layout=True)
 ax1.plot(wavelengths, Stokes_I, c='k')
 ax1.plot(wavelengths, data_demod[0], c=RGB[0])
 ax1.plot(wavelengths, data_demod[1], c=RGB[2])
 ax1.set_xlabel("Wavelength [nm]")
 ax1.set_ylabel("Radiance [ADU]")
 ax1.set_xlim(wavelengths[0], wavelengths[-1])
-ax1.set_ylim(ymin=0)
-ax1.set_title(data_folder.stem)
+ax1.set_ylim(0, 10000)
+ax1.set_yticks(np.arange(0,10001,2000))
+ax1.set_title("No debris")
+ax1.grid(ls="--")
 
 ax2 = ax1.twinx()
-ax2.plot(wavelengths, dolp_smooth, c=RGB[1])
+ax2.plot(wavelengths, dolp_smooth, c=RGB[1], path_effects=[pe.withStroke(linewidth=3, foreground='black')])
 ax2.fill_between(wavelengths, (dolp_smooth-dolp_uncertainty_smooth), (dolp_smooth+dolp_uncertainty_smooth), facecolor=RGB[1], alpha=0.5)
-ax2.set_ylabel("Degree of Linear Polarisation ($P_L$)", color=RGB[1])
-ax2.set_ylim(0, 0,3)
+ax2.set_ylabel("Degree of Linear\nPolarisation $P_L$", color=RGB[1])
+ax2.set_ylim(0, 0.25)
+ax2.set_yticks(np.arange(0,0.26,0.05))
 
 plt.savefig(f"results/{data_folder.stem}_demodulated_example.pdf")
 plt.close()
