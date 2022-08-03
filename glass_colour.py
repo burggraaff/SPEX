@@ -2,8 +2,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from spex import stokes, elements
 from spectacle.general import gauss1d, gaussMd
-from spectacle.linearity import sRGB_generic
+from spectacle.linearity import sRGB as sRGB_generic
 from spectacle import spectral
+from spectacle.plot import _rgbplot
 from colorio._tools import plot_flat_gamut
 
 nr_retardances = 250
@@ -11,8 +12,8 @@ nr_retardances = 250
 # Load the input spectrum
 # input_spectrum = np.loadtxt("input_data/lamp_spectrum.txt", skiprows=14)  # Halogen lamp
 # input_spectrum = np.loadtxt("input_data/haldeut_spectrum.txt", skiprows=13)  # Halogen-deuterium lamp
-input_spectrum = np.loadtxt("input_data/fluorescent_spectrum.txt", skiprows=13)  # Fluorescent lamp
-# input_spectrum = np.loadtxt("input_data/cie_d65.txt", skiprows=1, usecols=[0,1])  # Daylight
+# input_spectrum = np.loadtxt("input_data/fluorescent_spectrum.txt", skiprows=13)  # Fluorescent lamp
+input_spectrum = np.loadtxt("input_data/cie_d65.txt", skiprows=1, usecols=[0,1])  # Daylight
 # input_spectrum = np.stack([np.linspace(380, 800, 1500), np.ones(1500)]).T  # Equal-energy spectrum
 
 # Create the source spectrum, fully unpolarised
@@ -108,11 +109,9 @@ intensity_parallel_sRGB /= sRGB_max
 # Plot sRGB as a function of retardance
 fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True)
 for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB, intensity_parallel_sRGB], polariser_labels):
-    for sRGB, label in zip(intensity_sRGB, "rgb"):
-        ax.plot(retardances_relative, sRGB, label=label, lw=3, c=label)
+    _rgbplot(retardances_relative, intensity_sRGB, func=ax.plot, lw=3)
     ax.set_ylabel(f"Linear sRGB\n({pol_label})")
     ax.grid(ls="--")
-    ax.legend(ncol=3, loc="lower right")
 axs[1].set_xlabel("Retardance in $\lambda$ at 560 nm")
 plt.savefig("retardance_sRGB.pdf", bbox_inches="tight")
 plt.show()
@@ -127,11 +126,9 @@ intensity_parallel_sRGB_gamma = sRGB_generic(intensity_parallel_sRGB_clip, norma
 
 fig, axs = plt.subplots(nrows=2, sharex=True, sharey=True)
 for ax, intensity_sRGB, pol_label in zip(axs, [intensity_orthogonal_sRGB_gamma, intensity_parallel_sRGB_gamma], polariser_labels):
-    for sRGB, label in zip(intensity_sRGB, "rgb"):
-        ax.plot(retardances_relative, sRGB, label=label, lw=3, c=label)
+    _rgbplot(retardances_relative, intensity_sRGB, func=ax.plot, lw=3)
     ax.set_ylabel(f"sRGB ({pol_label})")
     ax.grid(ls="--")
-    ax.legend(ncol=3, loc="lower right")
 axs[1].set_xlabel("Retardance in $\lambda$ at 560 nm")
 plt.savefig("retardance_sRGB_gamma.pdf", bbox_inches="tight")
 plt.show()
