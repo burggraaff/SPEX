@@ -14,13 +14,15 @@ texp = 200.
 # Get data folder from command-line input
 data_folder = Path(argv[1])
 print(f"Loading data from {data_folder.absolute()}")
+data_label = f"{data_folder.parent.stem}_{data_folder.stem}"
+print(f"Results will be saved as {data_label}_X")
 
 # Load spectra
 data, data_dark, data_timestamps = groundspex.load_data_folder(data_folder)
 print("Data loaded")
 
 # Plot the raw data
-groundspex.plot.plot_spectrum_stack_dualchannel(groundspex.instrument.PIXEL_ARRAY_DUALCHANNEL[0], data, xlabel="Pixel number", title=data_folder.stem, saveto=f"results/{data_folder.stem}_allspectra_raw.png")
+groundspex.plot.plot_spectrum_stack_dualchannel(groundspex.instrument.PIXEL_ARRAY_DUALCHANNEL[0], data, xlabel="Pixel number", title=f"{data_label}: Raw data", saveto=f"results/{data_label}_allspectra_raw.png")
 print("Saved raw data plot")
 
 # Dark subtraction
@@ -36,7 +38,7 @@ data = groundspex.data_processing.correct_transmission(data)
 print("Transmission correction done")
 
 # Plot the corrected data
-groundspex.plot.plot_spectrum_stack_dualchannel(wavelengths, data, title=data_folder.stem, saveto=f"results/{data_folder.stem}_allspectra_corrected.png")
+groundspex.plot.plot_spectrum_stack_dualchannel(wavelengths, data, title=f"{data_label}: Corrected data", saveto=f"results/{data_label}_allspectra_corrected.png")
 print("Saved corrected data plot")
 
 # Plot the median and outliers
@@ -48,9 +50,9 @@ for channel, colour in zip(data[outlier], RGB[::2]):
 plt.xlim(wavelengths[0], wavelengths[-1])
 plt.xlabel("Wavelength [nm]")
 plt.ylabel("Radiance [ADU]")
-plt.title(data_folder.stem)
+plt.title(f"{data_label}: Outlier (spectrum with highest value)")
 plt.grid(ls="--")
-plt.savefig(f"results/{data_folder.stem}_outlier.png", dpi=300)
+plt.savefig(f"results/{data_label}_outlier.png", dpi=300)
 plt.close()
 print("Saved outlier plot")
 
@@ -92,7 +94,7 @@ ax1.set_ylabel("Radiance [ADU]")
 ax1.set_xlim(wavelengths[0], wavelengths[-1])
 ax1.set_ylim(0, 10000)
 ax1.set_yticks(np.arange(0,10001,2000))
-ax1.set_title("No debris")
+ax1.set_title(f"No debris {data_label}")
 ax1.grid(ls="--")
 
 ax2 = ax1.twinx()
@@ -102,6 +104,6 @@ ax2.set_ylabel("Degree of Linear\nPolarisation $P_L$", color=RGB[1])
 ax2.set_ylim(0, 0.25)
 ax2.set_yticks(np.arange(0,0.26,0.05))
 
-plt.savefig(f"results/{data_folder.stem}_demodulated_example.pdf")
+plt.savefig(f"results/{data_label}_demodulated_example.png")
 plt.close()
 print("Saved demodulated plot")
