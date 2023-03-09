@@ -83,6 +83,12 @@ aolp_smooth = gauss1d(aolp, sigma=25)
 aolp_uncertainty_smooth = gauss1d(aolp_uncertainty, sigma=25)
 retardance_smooth = gauss1d(retardance_fit, sigma=100)
 retardance_uncertainty_smooth = gauss1d(retardance_fit_uncertainty, sigma=100)
+# End of iterative process
+
+# Remove DoLP where data are near-0 (i.e. fitting noise)
+ind = np.where(Stokes_I <= 500)
+dolp_smooth[ind] = np.nan
+dolp_uncertainty_smooth[ind] = np.nan
 
 # Plot and save
 fig, ax1 = plt.subplots(figsize=(5.3, 2.4), tight_layout=True)
@@ -92,6 +98,7 @@ ax1.plot(wavelengths, data_demod[1], c=RGB[2])
 ax1.set_xlabel("Wavelength [nm]")
 ax1.set_ylabel("Radiance [ADU]")
 ax1.set_xlim(wavelengths[0], wavelengths[-1])
+ax1.set_ylim(ymin=0)
 # ax1.set_ylim(0, 10000)
 # ax1.set_yticks(np.arange(0,10001,2000))
 ax1.set_title(f"No debris {data_label}")
