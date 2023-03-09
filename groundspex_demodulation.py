@@ -112,6 +112,6 @@ ax2.set_ylim(0, 0.25)
 ax2.set_yticks(np.arange(0,0.26,0.05))
 ax2.grid(ls="--", axis="y")
 
-plt.savefig(f"results/{data_label}_demodulated_example.png")
+plt.savefig(f"results/{data_label}_demodulated_example.png", dpi=300)
 plt.close()
 print("Saved demodulated plot")
