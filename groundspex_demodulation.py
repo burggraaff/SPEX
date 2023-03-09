@@ -101,7 +101,7 @@ ax1.set_xlim(wavelengths[0], wavelengths[-1])
 ax1.set_ylim(ymin=0)
 # ax1.set_ylim(0, 10000)
 # ax1.set_yticks(np.arange(0,10001,2000))
-ax1.set_title(f"No debris {data_label}")
+ax1.set_title(data_label)
 ax1.grid(ls="--", axis="x")
 
 ax2 = ax1.twinx()
