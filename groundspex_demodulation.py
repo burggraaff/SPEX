@@ -115,3 +115,7 @@ ax2.grid(ls="--", axis="y")
 plt.savefig(f"results/{data_label}_demodulated_example.png", dpi=300)
 plt.close()
 print("Saved demodulated plot")
+
+# Save result to CSV file
+result = np.stack([wavelengths, Stokes_I, data_demod[0], data_demod[1], dolp_smooth, dolp_uncertainty_smooth])
+np.savetxt(f"results/{data_label}_results.csv", result, delimiter=", ", header="Wavelength [nm] - Stokes I [ADU] - Channel 1 [ADU] - Channel 2 [ADU] - DoLP (smoothed) - DoLP uncertainty (smoothed)")
